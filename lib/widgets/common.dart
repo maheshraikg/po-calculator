@@ -239,8 +239,11 @@ class ValueTile extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 5),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
+        // Both sides only as wide as needed; the value sits at the right.
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Expanded(
+          Flexible(
+            flex: 3,
             child: Text(
               label,
               style: t.bodyLarge?.copyWith(
@@ -251,6 +254,7 @@ class ValueTile extends StatelessWidget {
           const SizedBox(width: 12),
           // Large amounts shrink rather than overflow on small phones.
           Flexible(
+            flex: 2,
             child: FittedBox(
               fit: BoxFit.scaleDown,
               alignment: Alignment.centerRight,

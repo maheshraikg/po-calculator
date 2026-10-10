@@ -11,7 +11,7 @@ import '../accounts/backup_sheet.dart';
 import '../rates/rates_screen.dart';
 import 'feedback_card.dart';
 
-const String kAppVersion = '1.5.9';
+const String kAppVersion = '1.6.0';
 
 /// Direct link to the newest APK.
 const String kDownloadUrl =

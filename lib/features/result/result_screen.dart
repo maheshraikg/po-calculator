@@ -14,6 +14,7 @@ import '../../widgets/motion.dart';
 import '../../widgets/schedule_table.dart';
 import '../../widgets/share_card.dart';
 import '../schemes/scheme_details_screen.dart';
+import 'suggestions.dart';
 
 class ResultScreen extends StatelessWidget {
   const ResultScreen({
@@ -147,6 +148,7 @@ class ResultScreen extends StatelessWidget {
                       ),
                     ),
                   ),
+                step(SuggestionCard(result: r)),
                 if (scheme != Scheme.sb) step(_ClosureSection(result: r)),
                 ..._extensions(context).map(step),
                 ..._withdrawals(context).map(step),

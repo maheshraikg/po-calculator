@@ -517,4 +517,66 @@ void main() {
       Scheme.mssc,
     ]);
   });
+
+  testWidgets('staff tab: RD rebate calculator and service charges', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(400 * 3, 900 * 3);
+    tester.view.devicePixelRatio = 3;
+    addTearDown(tester.view.reset);
+    await pumpApp(tester);
+    await tester.tap(find.text('Staff').last);
+    await tester.pumpAndSettle();
+    final list = find.byType(Scrollable).last;
+    await tester.scrollUntilVisible(
+      find.text('Pay now'),
+      300,
+      scrollable: list,
+    );
+    await tester.pumpAndSettle();
+    // ₹1,000 × 12 = ₹12,000, rebate ₹400.
+    expect(find.text('₹12,000'), findsOneWidget);
+    expect(find.text('− ₹400'), findsOneWidget);
+    expect(find.text('₹11,600'), findsOneWidget);
+    final six = find.widgetWithText(ChoiceChip, '6');
+    await tester.ensureVisible(six);
+    await tester.pumpAndSettle();
+    await tester.tap(six);
+    await tester.pumpAndSettle();
+    expect(find.text('₹5,900'), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.text('Cheque dishonour'),
+      300,
+      scrollable: list,
+    );
+    expect(find.text('Service charges'), findsOneWidget);
+    expect(find.text('then ₹2 a leaf'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('MIS result suggests putting the interest into an RD', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    final nav = tester.state<NavigatorState>(find.byType(Navigator).first);
+    nav.push(
+      MaterialPageRoute<void>(
+        builder: (_) => ResultScreen(result: calc(Scheme.mis, 100000, '7.4')),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.text('Suggestions'),
+      300,
+      scrollable: find.byType(Scrollable).last,
+    );
+    expect(
+      find.text('Put ₹610 a month of this interest into an RD'),
+      findsOneWidget,
+    );
+    // NSC for everyone, SCSS for age 60+.
+    expect(find.textContaining('Better return: '), findsNWidgets(2));
+    expect(find.text('Age 60+ only'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
 }
