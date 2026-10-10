@@ -9,8 +9,9 @@ import '../../app/theme.dart';
 import '../../widgets/common.dart';
 import '../accounts/backup_sheet.dart';
 import '../rates/rates_screen.dart';
+import 'feedback_card.dart';
 
-const String kAppVersion = '1.5.2';
+const String kAppVersion = '1.5.3';
 
 /// Direct link to the newest APK.
 const String kDownloadUrl =
@@ -198,6 +199,7 @@ class SettingsScreen extends StatelessWidget {
                     },
                   ),
                 ),
+                const FeedbackCard(),
                 Card(
                   child: ListTile(
                     leading: const IconBadge(

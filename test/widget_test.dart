@@ -9,6 +9,8 @@ import 'package:po_sahayak/data/saved_account_repository.dart';
 import 'package:po_sahayak/domain/models/scheme.dart';
 import 'package:po_sahayak/features/result/result_screen.dart';
 import 'package:po_sahayak/features/schemes/scheme_details_screen.dart';
+import 'package:po_sahayak/features/settings/feedback_card.dart';
+import 'package:po_sahayak/features/settings/settings_screen.dart';
 import 'package:po_sahayak/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -374,5 +376,34 @@ void main() {
     final text = (calls.single.arguments as Map)['text'] as String;
     expect(text, contains('Account Opening Form'));
     expect(text, contains('https://www.indiapost.gov.in/'));
+  });
+
+  test('feedback e-mail goes to the developer with the app version', () {
+    final u = feedbackUri(
+      subject: 'PO Calculator – bug report',
+      body: 'Tax table wrong',
+      lang: 'hi',
+    );
+    expect(u.scheme, 'mailto');
+    expect(u.path, 'maheshraikg@gmail.com');
+    final q = Uri.decodeComponent(u.query);
+    expect(q, contains('subject=PO Calculator – bug report'));
+    expect(q, contains('Tax table wrong'));
+    expect(q, contains('PO Calculator $kAppVersion · hi'));
+  });
+
+  testWidgets('settings shows the developer and feedback buttons', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(400 * 3, 2600 * 3);
+    tester.view.devicePixelRatio = 3;
+    addTearDown(tester.view.reset);
+    await pumpApp(tester);
+    await tester.tap(find.text('Settings').last);
+    await tester.pumpAndSettle();
+    expect(find.text('Mahesh Rai'), findsOneWidget);
+    expect(find.text('maheshraikg@gmail.com'), findsOneWidget);
+    expect(find.text('Send a suggestion'), findsOneWidget);
+    expect(find.text('Report a bug'), findsOneWidget);
   });
 }
