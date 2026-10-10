@@ -114,7 +114,20 @@ class ResultScreen extends StatelessWidget {
                       icon: Icons.table_chart_rounded,
                       title: s.yearWise,
                       color: c,
-                      child: ScheduleTable(rows: r.schedule),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          if (scheme.payout != null)
+                            Note(
+                              s.payoutTableNote(rupee(r.totalDeposit)),
+                              icon: Icons.account_balance_wallet_rounded,
+                            ),
+                          ScheduleTable(
+                            rows: r.schedule,
+                            payout: scheme.payout != null,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 if (scheme.showsTaxableInterest && fyRows.isNotEmpty)

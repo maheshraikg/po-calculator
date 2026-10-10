@@ -406,4 +406,34 @@ void main() {
     expect(find.text('Send a suggestion'), findsOneWidget);
     expect(find.text('Report a bug'), findsOneWidget);
   });
+
+  testWidgets('MIS year-wise table shows interest paid out and fits', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(360 * 3, 720 * 3);
+    tester.view.devicePixelRatio = 3;
+    tester.platformDispatcher.textScaleFactorTestValue = 1.3;
+    addTearDown(tester.view.reset);
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    await pumpApp(tester);
+    final nav = tester.state<NavigatorState>(find.byType(Navigator).first);
+    nav.push(
+      MaterialPageRoute<void>(
+        builder: (_) => ResultScreen(result: calc(Scheme.mis, 10000, '7.4')),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.text('Paid so far'),
+      300,
+      scrollable: find.byType(Scrollable).last,
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Interest paid'), findsWidgets);
+    expect(find.textContaining('deposit stays ₹10,000'), findsOneWidget);
+    // ₹62 a month: ₹744 a year, adding up in "Paid so far".
+    expect(find.text('₹1,488'), findsOneWidget);
+    expect(find.text('₹3,720'), findsWidgets);
+    expect(tester.takeException(), isNull);
+  });
 }

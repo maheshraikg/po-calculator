@@ -1,40 +1,92 @@
+import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 
 import '../app/format.dart';
 import '../app/scope.dart';
 import '../domain/models/result.dart';
 
-/// Year-wise table: year, deposit, interest, balance.
+/// Year-wise table that always fits the card width (no sideways scroll)
+/// and grows with large phone fonts. For payout schemes (MIS, SCSS, TD) the
+/// interest goes to the savings account, so it shows interest paid, the
+/// total paid so far and the deposit, which stays the same.
 class ScheduleTable extends StatelessWidget {
-  const ScheduleTable({super.key, required this.rows});
+  const ScheduleTable({super.key, required this.rows, this.payout = false});
   final List<ScheduleRow> rows;
+  final bool payout;
 
   @override
   Widget build(BuildContext context) {
     final s = context.s;
-    return _FullWidth(
-      child: DataTable(
-        columnSpacing: 18,
-        horizontalMargin: 8,
-        headingRowHeight: 44,
-        columns: [
-          DataColumn(label: Text(s.year)),
-          DataColumn(label: Text(s.deposit), numeric: true),
-          DataColumn(label: Text(s.interest), numeric: true),
-          DataColumn(label: Text(s.balance), numeric: true),
-        ],
-        rows: [
-          for (final r in rows)
-            DataRow(
-              cells: [
-                DataCell(Text('${r.year}\n${dmy(r.date)}')),
-                DataCell(Text(rupee(r.deposit))),
-                DataCell(Text(rupee(r.interest))),
-                DataCell(Text(rupee(r.balance))),
-              ],
-            ),
-        ],
+    final t = Theme.of(context).textTheme;
+    final head = t.labelMedium?.copyWith(fontWeight: FontWeight.w700);
+    final body = t.bodySmall?.copyWith(fontSize: 13);
+    Widget num(String v, {TextStyle? style}) => Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 3),
+      child: Align(
+        alignment: Alignment.centerRight,
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(v, style: style ?? body, maxLines: 1),
+        ),
       ),
+    );
+    Widget label(String v) => Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 3),
+      child: Text(v, style: head, textAlign: TextAlign.right),
+    );
+    var paid = Decimal.zero;
+    final heads = payout
+        ? [s.interestPaid, s.paidSoFar, s.deposit]
+        : [s.deposit, s.interest, s.balance];
+    return Table(
+      columnWidths: const {0: FlexColumnWidth(1.15)},
+      defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+      border: TableBorder(
+        horizontalInside: BorderSide(
+          color: Theme.of(context).dividerColor.withValues(alpha: 0.4),
+        ),
+      ),
+      children: [
+        TableRow(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 3),
+              child: Text(s.year, style: head),
+            ),
+            for (final h in heads) label(h),
+          ],
+        ),
+        for (final r in rows)
+          TableRow(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 3),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('${r.year}', style: head),
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(dmy(r.date), style: body, maxLines: 1),
+                    ),
+                  ],
+                ),
+              ),
+              if (payout) ...[
+                num(rupee(r.interest)),
+                num(rupee(paid += r.interest)),
+                num(rupee(r.balance)),
+              ] else ...[
+                num(rupee(r.deposit)),
+                num(rupee(r.interest)),
+                num(
+                  rupee(r.balance),
+                  style: body?.copyWith(fontWeight: FontWeight.w700),
+                ),
+              ],
+            ],
+          ),
+      ],
     );
   }
 }
