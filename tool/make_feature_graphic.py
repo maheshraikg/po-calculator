@@ -1,6 +1,6 @@
 """Play Store feature graphic (1024x500): python3 tool/make_feature_graphic.py
 
-Uses store/icon_512.png and store/screenshots/en/{2_result,4_compare}.png.
+Uses store/icon_512.png and store/screenshots/raw/{2_result,4_compare}.png.
 """
 import math
 
@@ -68,8 +68,8 @@ def place(base, ph, center, angle):
     return base
 
 
-img = place(img, phone('store/screenshots/en/4_compare.png', 214), (705, 285), 9)
-img = place(img, phone('store/screenshots/en/2_result.png', 236), (868, 262), -6)
+img = place(img, phone('store/screenshots/raw/4_compare.png', 214), (705, 285), 9)
+img = place(img, phone('store/screenshots/raw/2_result.png', 236), (868, 262), -6)
 
 # Left: icon, name, tagline, features, languages.
 d = ImageDraw.Draw(img)

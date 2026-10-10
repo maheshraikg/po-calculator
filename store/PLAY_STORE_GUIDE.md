@@ -15,7 +15,7 @@ matches the meaning below.
 | Kannada listing | `store/listing/kn-IN/` (add language **Kannada – kn-IN**) |
 | App icon 512×512 | `store/icon_512.png` |
 | Feature graphic 1024×500 | `store/feature_graphic.png` |
-| Phone screenshots (2–8) | `store/screenshots/en/1_home.png` … `8_languages.png` (1080×1920) |
+| Phone screenshots (2–8) | `store/screenshots/en/1_home.png` … `8_languages.png` (1080×1920, with headlines). To remake after app changes: `flutter test tool/screenshots/store_test.dart`, then `python3 tool/make_store_screenshots.py` and `python3 tool/make_feature_graphic.py` |
 | Privacy policy URL | https://github.com/maheshraikg/po-calculator/blob/main/PRIVACY.md |
 | Contact e-mail | maheshraikg@gmail.com |
 | Upload key | `upload.jks` in your private Google Drive folder (SHA-256 `7B:26:4D:90:…:94:0F:C1:63`) |

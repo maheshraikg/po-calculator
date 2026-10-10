@@ -3,7 +3,7 @@
 //   FLUTTER_ROOT=<sdk> flutter test tool/screenshots/store_test.dart
 //
 // Needs Roboto (Flutter SDK cache) and Noto Sans for the Indian scripts
-// (apt install fonts-noto-core). Output: store/screenshots/en/*.png
+// (apt install fonts-noto-core). Output: store/screenshots/raw/*.png (then python3 tool/make_store_screenshots.py)
 // ignore_for_file: invalid_use_of_visible_for_testing_member
 
 import 'dart:io';
@@ -39,7 +39,7 @@ void main() {
   final sdk = Platform.environment['FLUTTER_ROOT'] ?? '/opt/flutter';
   final mf = '$sdk/bin/cache/artifacts/material_fonts';
   const noto = '/usr/share/fonts/truetype/noto';
-  const out = 'store/screenshots/en';
+  const out = 'store/screenshots/raw';
   const scripts = [
     'Kannada',
     'Devanagari',
@@ -127,14 +127,20 @@ void main() {
     }
 
     Finder list() => find.byType(Scrollable).last;
-    Future<void> scrollTo(String text, {double up = 0}) async {
+    // Brings [text] near the top of the page (a drag could tap a card).
+    Future<void> scrollTo(String text, {double at = 0.03}) async {
       await tester.scrollUntilVisible(
         find.text(text).last,
         200,
         scrollable: list(),
       );
       await settle();
-      if (up != 0) await tester.drag(list(), Offset(0, up));
+      await tester.runAsync(() async {});
+      Scrollable.ensureVisible(
+        tester.element(find.text(text).last),
+        alignment: at,
+      );
+      await settle();
     }
 
     final nav = tester.state<NavigatorState>(find.byType(Navigator).first);
@@ -164,7 +170,7 @@ void main() {
       ),
     );
     await settle();
-    await scrollTo('Suggestions', up: 90);
+    await scrollTo('Suggestions');
     await shot('3_suggestions');
     nav.pop();
     await settle();
@@ -177,9 +183,9 @@ void main() {
 
     await tester.tap(find.byIcon(Icons.support_agent_outlined).last);
     await settle();
-    await scrollTo('RD advance deposit rebate', up: 40);
+    await scrollTo('RD advance deposit rebate');
     await shot('6_rd_rebate');
-    await scrollTo('Official forms', up: 40);
+    await scrollTo('Official forms');
     await shot('7_forms');
 
     await tester.tap(find.byIcon(Icons.home_outlined).last);
