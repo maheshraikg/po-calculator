@@ -490,4 +490,31 @@ void main() {
       everyElement(Decimal.fromInt(150000)),
     );
   });
+
+  testWidgets('joint account switch shows where joint accounts are allowed', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    final nav = tester.state<NavigatorState>(find.byType(Navigator).first);
+    for (final scheme in Scheme.values) {
+      nav.push(
+        MaterialPageRoute<void>(
+          builder: (_) => CalculatorScreen(scheme: scheme),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(
+        find.byType(SwitchListTile),
+        scheme.jointAllowed ? findsOneWidget : findsNothing,
+        reason: scheme.code,
+      );
+      nav.pop();
+      await tester.pumpAndSettle();
+    }
+    expect(Scheme.values.where((s) => !s.jointAllowed), [
+      Scheme.ppf,
+      Scheme.ssy,
+      Scheme.mssc,
+    ]);
+  });
 }

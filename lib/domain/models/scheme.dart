@@ -71,6 +71,9 @@ enum Scheme {
   /// opening).
   bool get rateFloats => this == sb || this == ppf || this == ssy;
 
+  /// Can be held jointly (SCSS: only with the spouse).
+  bool get jointAllowed => this != ppf && this != ssy && this != mssc;
+
   bool get isTd => this == td1 || this == td2 || this == td3 || this == td5;
 
   Payout? get payout => switch (this) {

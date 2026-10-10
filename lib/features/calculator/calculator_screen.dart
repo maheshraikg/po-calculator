@@ -270,21 +270,28 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  if (scheme == Scheme.mis)
+                  if (scheme.jointAllowed)
                     Card(
                       child: SwitchListTile(
                         secondary: Icon(Icons.group_rounded, color: c),
                         title: Text(s.jointAccount),
-                        subtitle: Text(
-                          s.jointLimitNote(
+                        subtitle: Text(switch (scheme) {
+                          Scheme.mis => s.jointLimitNote(
                             rupee(maxFor(scheme, Holding.single)),
                             rupee(maxFor(scheme, Holding.joint)),
                           ),
-                        ),
+                          Scheme.scss => s.jointSpouseNote,
+                          _ => s.jointSameNote,
+                        }),
                         value: _joint,
                         activeThumbColor: c,
                         onChanged: (v) => setState(() => _joint = v),
                       ),
+                    )
+                  else
+                    Note(
+                      s.issue(Issue.noJoint, scheme),
+                      icon: Icons.person_rounded,
                     ),
                   if (scheme != Scheme.sb)
                     Appear(
