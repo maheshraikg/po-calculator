@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../app/scope.dart';
@@ -42,9 +43,45 @@ class OfficialForms extends StatelessWidget {
     }
   }
 
+  Future<void> _send(BuildContext context, String title, String url) async {
+    final s = context.s;
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      await SharePlus.instance.share(
+        ShareParams(text: '$title\n$url\n— ${s.appTitle}'),
+      );
+    } catch (_) {
+      messenger.showSnackBar(SnackBar(content: Text(s.shareFailed)));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final s = context.s;
+    // A form PDF: tap or Download opens it in the browser, which saves it;
+    // Send shares the link (e.g. to a customer on WhatsApp).
+    Widget form(IconData icon, String title, String url) => ListTile(
+      contentPadding: EdgeInsets.zero,
+      leading: IconBadge(icon, color, size: 34),
+      title: Text(title),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton(
+            tooltip: s.downloadForm,
+            icon: Icon(Icons.download_rounded, color: color),
+            onPressed: () => _open(context, url),
+          ),
+          IconButton(
+            tooltip: s.sendForm,
+            icon: const Icon(Icons.share_rounded),
+            onPressed: () => _send(context, title, url),
+          ),
+        ],
+      ),
+      onTap: () => _open(context, url),
+    );
+    // A web page listing many forms.
     Widget link(IconData icon, String title, String url) => ListTile(
       contentPadding: EdgeInsets.zero,
       leading: IconBadge(icon, color, size: 34),
@@ -59,12 +96,12 @@ class OfficialForms extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          link(Icons.note_add_rounded, s.formAof, kFormLinks.aof),
-          link(Icons.badge_rounded, s.formKyc, kFormLinks.kyc),
-          link(Icons.payments_rounded, s.formSb7, kFormLinks.sb7),
-          link(Icons.lock_open_rounded, s.formSb7b, kFormLinks.sb7b),
-          link(Icons.request_quote_rounded, s.formSb7c, kFormLinks.sb7c),
-          link(
+          form(Icons.note_add_rounded, s.formAof, kFormLinks.aof),
+          form(Icons.badge_rounded, s.formKyc, kFormLinks.kyc),
+          form(Icons.payments_rounded, s.formSb7, kFormLinks.sb7),
+          form(Icons.lock_open_rounded, s.formSb7b, kFormLinks.sb7b),
+          form(Icons.request_quote_rounded, s.formSb7c, kFormLinks.sb7c),
+          form(
             Icons.event_available_rounded,
             s.formMaturity,
             kFormLinks.maturity,
@@ -72,6 +109,7 @@ class OfficialForms extends StatelessWidget {
           link(Icons.folder_open_rounded, s.formsAll, kFormLinks.all),
           link(Icons.account_balance_rounded, s.formsNsi, kFormLinks.nsi),
           link(Icons.menu_book_rounded, s.formsHandbook, kFormLinks.handbooks),
+          Note(s.downloadNote, icon: Icons.download_rounded),
           Note(s.formsNote),
         ],
       ),

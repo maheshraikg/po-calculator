@@ -352,4 +352,27 @@ void main() {
     expect(find.text('ಸಿಬ್ಬಂದಿ'), findsOneWidget);
     expect(find.text('Staff'), findsNothing);
   });
+
+  testWidgets('a form can be sent to a customer', (tester) async {
+    final calls = <MethodCall>[];
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      const MethodChannel('dev.fluttercommunity.plus/share'),
+      (call) async {
+        calls.add(call);
+        return 'dev.fluttercommunity.plus/share/unavailable';
+      },
+    );
+    tester.view.physicalSize = const Size(400 * 3, 3200 * 3);
+    tester.view.devicePixelRatio = 3;
+    addTearDown(tester.view.reset);
+    await pumpApp(tester);
+    await tester.tap(find.text('Staff').last);
+    await tester.pumpAndSettle();
+    expect(find.byTooltip('Download'), findsNWidgets(6));
+    await tester.tap(find.byTooltip('Send to customer').first);
+    await tester.pumpAndSettle();
+    final text = (calls.single.arguments as Map)['text'] as String;
+    expect(text, contains('Account Opening Form'));
+    expect(text, contains('https://www.indiapost.gov.in/'));
+  });
 }
