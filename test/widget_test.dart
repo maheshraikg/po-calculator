@@ -373,7 +373,7 @@ void main() {
     await pumpApp(tester);
     await tester.tap(find.text('Staff').last);
     await tester.pumpAndSettle();
-    expect(find.byTooltip('Download'), findsNWidgets(6));
+    expect(find.byTooltip('Download'), findsNWidgets(15));
     await tester.tap(find.byTooltip('Send to customer').first);
     await tester.pumpAndSettle();
     final text = (calls.single.arguments as Map)['text'] as String;
