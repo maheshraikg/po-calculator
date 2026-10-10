@@ -10,11 +10,11 @@ import '../../widgets/common.dart';
 import '../accounts/backup_sheet.dart';
 import '../rates/rates_screen.dart';
 
-const String kAppVersion = '1.4.0';
+const String kAppVersion = '1.4.1';
 
 /// Direct link to the newest APK.
 const String kDownloadUrl =
-    'https://github.com/maheshraikg/Pdf_Tools/releases/download/po-sahayak-keep-latest/po_sahayak.apk';
+    'https://github.com/maheshraikg/po-calculator/releases/latest/download/po_calculator.apk';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});

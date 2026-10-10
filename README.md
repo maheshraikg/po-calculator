@@ -1,8 +1,11 @@
-# PO Calculator (PO Sahayak project)
+# PO Calculator
 
-Offline, bilingual (Kannada / English) calculator and helper for Post Office
-small savings schemes, for customers, agents and counter staff. Built from
-the "PO Sahayak – Claude Code Build Plan" (version 1 scope).
+**Download (Android APK):**
+https://github.com/maheshraikg/po-calculator/releases/latest/download/po_calculator.apk
+
+Offline calculator and helper for Post Office small savings schemes, in 11
+Indian languages, for customers, agents and counter staff. Built from the
+"PO Sahayak – Claude Code Build Plan" (version 1 scope).
 
 Not affiliated with India Post or the Government of India. Every result is an
 estimate; confirm at the post office.
@@ -97,9 +100,11 @@ flutter test
 flutter build apk --release --obfuscate --split-debug-info=build/symbols
 ```
 
-CI (`.github/workflows/po-sahayak.yml`) runs analyze and test, builds the
+CI (`.github/workflows/ci.yml`) runs analyze and test, builds the
 release APK, checks that the APK has no INTERNET permission, and uploads the
-APK as the `po-sahayak-release-apk` artifact.
+APK as the `po-calculator-release-apk` artifact. `.github/workflows/release.yml`
+publishes every push to `main` as the GitHub release `v<version>` (marked
+latest), which the download link above always points to.
 
 ### Release signing
 

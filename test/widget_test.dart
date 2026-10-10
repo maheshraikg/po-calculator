@@ -205,7 +205,7 @@ void main() {
     expect(calls, hasLength(1));
     expect(
       (calls.single.arguments as Map)['text'],
-      contains('po-sahayak-keep-latest/po_sahayak.apk'),
+      contains('po-calculator/releases/latest/download/po_calculator.apk'),
     );
   });
 
