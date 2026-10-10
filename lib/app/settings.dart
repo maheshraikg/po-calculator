@@ -11,7 +11,7 @@ class AppSettings extends ChangeNotifier {
     final p = await SharedPreferences.getInstance();
     return AppSettings._(
       p,
-      Lang.values.asNameMap()[p.getString('lang')] ?? Lang.kn,
+      Lang.values.asNameMap()[p.getString('lang')] ?? Lang.en,
       ThemeMode.values.asNameMap()[p.getString('theme')] ?? ThemeMode.system,
     );
   }

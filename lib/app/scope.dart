@@ -11,6 +11,7 @@ class AppScope extends InheritedWidget {
   const AppScope({
     super.key,
     required this.settings,
+    required this.lang,
     required this.rates,
     required this.accounts,
     this.localRates,
@@ -18,6 +19,10 @@ class AppScope extends InheritedWidget {
   });
 
   final AppSettings settings;
+
+  /// Language when this scope was built: a change rebuilds every screen
+  /// (the settings object itself stays the same).
+  final Lang lang;
   final RateRepository rates;
   final SavedAccountRepository accounts;
   final LocalRates? localRates;
@@ -28,6 +33,7 @@ class AppScope extends InheritedWidget {
   @override
   bool updateShouldNotify(AppScope old) =>
       settings != old.settings ||
+      lang != old.lang ||
       rates != old.rates ||
       accounts != old.accounts ||
       localRates != old.localRates;

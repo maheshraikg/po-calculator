@@ -175,10 +175,12 @@ ThemeData buildTheme(Brightness b) {
       labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
       labelTextStyle: WidgetStateProperty.resolveWith(
         (s) => TextStyle(
-          fontSize: 12,
+          fontFamily: 'Roboto',
+          fontSize: 11,
+          letterSpacing: 0,
           overflow: TextOverflow.ellipsis,
           fontWeight: s.contains(WidgetState.selected)
-              ? FontWeight.w700
+              ? FontWeight.w600
               : FontWeight.w500,
           fontFamilyFallback: debugFontFallback,
         ),

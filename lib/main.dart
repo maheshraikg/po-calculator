@@ -89,6 +89,7 @@ class _PoSahayakAppState extends State<PoSahayakApp> {
       listenable: Listenable.merge([widget.settings, ?local]),
       builder: (context, _) => AppScope(
         settings: widget.settings,
+        lang: widget.settings.lang,
         rates: local?.repo ?? widget.rates,
         accounts: widget.accounts,
         localRates: local,

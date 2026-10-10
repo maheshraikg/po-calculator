@@ -330,4 +330,26 @@ void main() {
       await tester.pumpAndSettle();
     }
   });
+
+  testWidgets('new install opens in English; tab labels follow the language', (
+    tester,
+  ) async {
+    SharedPreferences.setMockInitialValues({});
+    final settings = await AppSettings.load();
+    expect(settings.lang, Lang.en);
+    await tester.pumpWidget(
+      PoSahayakApp(
+        settings: settings,
+        rates: loadRates(),
+        accounts: await SavedAccountRepository.load(),
+        background: false,
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Staff'), findsOneWidget);
+    settings.lang = Lang.kn;
+    await tester.pumpAndSettle();
+    expect(find.text('ಸಿಬ್ಬಂದಿ'), findsOneWidget);
+    expect(find.text('Staff'), findsNothing);
+  });
 }
