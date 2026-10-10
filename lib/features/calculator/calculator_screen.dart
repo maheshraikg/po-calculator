@@ -275,6 +275,12 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                       child: SwitchListTile(
                         secondary: Icon(Icons.group_rounded, color: c),
                         title: Text(s.jointAccount),
+                        subtitle: Text(
+                          s.jointLimitNote(
+                            rupee(maxFor(scheme, Holding.single)),
+                            rupee(maxFor(scheme, Holding.joint)),
+                          ),
+                        ),
                         value: _joint,
                         activeThumbColor: c,
                         onChanged: (v) => setState(() => _joint = v),
