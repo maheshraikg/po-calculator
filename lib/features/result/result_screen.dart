@@ -13,6 +13,7 @@ import '../../widgets/common.dart';
 import '../../widgets/motion.dart';
 import '../../widgets/schedule_table.dart';
 import '../../widgets/share_card.dart';
+import '../schemes/scheme_details_screen.dart';
 
 class ResultScreen extends StatelessWidget {
   const ResultScreen({
@@ -159,6 +160,7 @@ class ResultScreen extends StatelessWidget {
                 ),
                 if (scheme.rateFloats) Note(s.rateFloats),
                 Note(s.estimateOnly, icon: Icons.warning_amber_rounded),
+                SchemeInfoCard(scheme: scheme),
                 Note(s.notAffiliated, icon: Icons.gpp_maybe_outlined),
               ],
             ),

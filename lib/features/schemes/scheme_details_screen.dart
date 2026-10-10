@@ -40,6 +40,65 @@ String schemeDetailsText(S s, RateRepository rates, Scheme scheme) => [
   '— ${s.appTitle}',
 ].join('\n');
 
+/// "About this scheme": every fact at today's rate, with a link to the
+/// full page (documents and sharing).
+class SchemeInfoCard extends StatelessWidget {
+  const SchemeInfoCard({super.key, required this.scheme});
+  final Scheme scheme;
+
+  @override
+  Widget build(BuildContext context) {
+    final s = context.s, t = Theme.of(context).textTheme;
+    final c = scheme.color;
+    return SectionCard(
+      icon: Icons.menu_book_rounded,
+      title: s.aboutScheme(s.schemeName(scheme)),
+      color: c,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          for (final (f, text) in factsFor(s, context.rates, scheme))
+            Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(SchemeDetailsScreen._icon(f), color: c, size: 20),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          s.factLabel(f),
+                          style: t.labelLarge?.copyWith(
+                            color: scheme.textColor(context),
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        Text(text, style: t.bodyMedium),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          const SizedBox(height: 14),
+          OutlinedButton.icon(
+            style: OutlinedButton.styleFrom(
+              foregroundColor: scheme.textColor(context),
+              minimumSize: const Size.fromHeight(48),
+            ),
+            onPressed: () => openSchemeDetails(context, scheme),
+            icon: const Icon(Icons.folder_copy_rounded),
+            label: Text(s.documentsAndShare),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class SchemeDetailsScreen extends StatelessWidget {
   const SchemeDetailsScreen({super.key, required this.scheme});
   final Scheme scheme;

@@ -21,6 +21,9 @@ enum AmountKind {
 /// How often interest is paid out (null: added to the balance).
 enum Payout { monthly, quarterly, yearly }
 
+/// Groups of schemes on the Compare tab.
+enum CompareGroup { fiveYears, shorter, longTerm }
+
 enum Scheme {
   sb('SB', AmountKind.balance, 12, 500, null, 1),
   rd('RD', AmountKind.monthly, 60, 100, null, 10),

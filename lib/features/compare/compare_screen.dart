@@ -6,36 +6,76 @@ import '../../app/format.dart';
 import '../../app/scope.dart';
 import '../../app/theme.dart';
 import '../../domain/engine/calculators.dart';
+import '../../domain/engine/eligibility.dart';
 import '../../domain/models/result.dart';
 import '../../domain/models/scheme.dart';
 import '../../widgets/common.dart';
 import '../../widgets/motion.dart';
 import '../result/result_screen.dart';
 
-/// Results for the same amount across [Scheme.compared], at today's rates.
-List<CalcResult> compareAll(
+/// Schemes open to everyone; the "highest return" badge only goes to these.
+bool openToAll(Scheme s) => s != Scheme.scss && s != Scheme.ssy;
+
+/// Results for the same amount across every open scheme, at today's rates,
+/// grouped by how long the money is kept. Within a group, highest value
+/// first (KVP, at about 115 months, last in the 5-year group).
+List<(CompareGroup, List<CalcResult>)> compareAll(
   Decimal amount,
   DateTime opening,
   Decimal Function(Scheme) rateOf,
 ) {
-  final out = <CalcResult>[];
-  for (final s in Scheme.compared) {
-    var a = amount;
-    if (s == Scheme.rd) {
-      // The amount spread over 60 instalments, in multiples of ₹10.
-      a =
-          (amount / Decimal.fromInt(600)).floor().toDecimal() *
-          Decimal.fromInt(10);
-      if (a < s.min) continue;
+  CalcResult? calc(Scheme s, Decimal a) {
+    if (a < s.min) return null;
+    if (s.maxAmount != null && s.amountKind == AmountKind.lumpSum) {
+      final max = s == Scheme.mis ? Scheme.misJointMax : s.maxAmount!;
+      if (a > Decimal.fromInt(max)) return null;
     }
-    if (s == Scheme.mis && a > Decimal.fromInt(Scheme.misJointMax)) continue;
-    out.add(
-      calculate(
-        CalcInput(scheme: s, amount: a, opening: opening, rate: rateOf(s)),
-      ),
+    return calculate(
+      CalcInput(scheme: s, amount: a, opening: opening, rate: rateOf(s)),
     );
   }
-  return out;
+
+  // RD: the amount spread over 60 instalments, in multiples of ₹10.
+  final rdInstalment =
+      (amount / Decimal.fromInt(600)).floor().toDecimal() * Decimal.fromInt(10);
+  // PPF and SSY: the amount each year, up to the yearly limit.
+  final yearly = amount > Decimal.fromInt(Scheme.ppf.maxAmount!)
+      ? Decimal.fromInt(Scheme.ppf.maxAmount!)
+      : amount;
+
+  List<CalcResult> ranked(Iterable<CalcResult?> rs) {
+    final out = rs.whereType<CalcResult>().toList()
+      ..sort((a, b) {
+        final ka = a.scheme == Scheme.kvp ? 1 : 0;
+        final kb = b.scheme == Scheme.kvp ? 1 : 0;
+        if (ka != kb) return ka - kb;
+        return b.maturityValue.compareTo(a.maturityValue);
+      });
+    return out;
+  }
+
+  return [
+    (
+      CompareGroup.fiveYears,
+      ranked([
+        for (final s in [Scheme.td5, Scheme.nsc, Scheme.scss, Scheme.mis])
+          calc(s, amount),
+        calc(Scheme.rd, rdInstalment),
+        calc(Scheme.kvp, amount),
+      ]),
+    ),
+    (
+      CompareGroup.shorter,
+      ranked([
+        for (final s in [Scheme.td3, Scheme.td2, Scheme.td1, Scheme.sb])
+          calc(s, amount),
+      ]),
+    ),
+    (
+      CompareGroup.longTerm,
+      ranked([calc(Scheme.ppf, yearly), calc(Scheme.ssy, yearly)]),
+    ),
+  ].where((g) => g.$2.isNotEmpty).toList();
 }
 
 class CompareScreen extends StatefulWidget {
@@ -59,25 +99,14 @@ class _CompareScreenState extends State<CompareScreen> {
     final s = context.s, rates = context.rates;
     final t = Theme.of(context).textTheme;
     final amount = Decimal.tryParse(_amount.text);
-    final results =
-        amount == null || amount < Decimal.fromInt(1000)
-              ? <CalcResult>[]
-              : compareAll(
-                  amount,
-                  DateUtils.dateOnly(DateTime.now()),
-                  (sc) => rates.current(sc).rate,
-                )
-          // 5-year schemes ranked by value; KVP (115 months) last, so the
-          // "highest return" badge compares like with like.
-          ..sort((a, b) {
-            final ka = a.scheme == Scheme.kvp ? 1 : 0;
-            final kb = b.scheme == Scheme.kvp ? 1 : 0;
-            if (ka != kb) return ka - kb;
-            return b.maturityValue.compareTo(a.maturityValue);
-          });
-    final best = results.isEmpty
-        ? null
-        : results.map((r) => r.maturityValue).reduce((a, b) => a > b ? a : b);
+    final groups = amount == null || amount < Decimal.fromInt(1000)
+        ? <(CompareGroup, List<CalcResult>)>[]
+        : compareAll(
+            amount,
+            DateUtils.dateOnly(DateTime.now()),
+            (sc) => rates.current(sc).rate,
+          );
+    var i = 0;
     return Scaffold(
       body: ListView(
         padding: EdgeInsets.zero,
@@ -166,14 +195,31 @@ class _CompareScreenState extends State<CompareScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                for (final (i, r) in results.indexed)
-                  Appear(
-                    key: ValueKey('${r.scheme.code}-${amount ?? ''}'),
-                    delay: Appear.step(i, ms: 80),
-                    child: _CompareCard(result: r, best: best!, isBest: i == 0),
-                  ),
+                for (final (g, rs) in groups) ...[
+                  _GroupTitle(s.compareGroup(g)),
+                  for (final r in rs)
+                    Appear(
+                      key: ValueKey('${r.scheme.code}-${amount ?? ''}'),
+                      delay: Appear.step(i++, ms: 60),
+                      child: _CompareCard(
+                        result: r,
+                        best: rs
+                            .map((r) => r.maturityValue)
+                            .reduce((a, b) => a > b ? a : b),
+                        isBest:
+                            g == CompareGroup.fiveYears &&
+                            r == rs.firstWhere((r) => openToAll(r.scheme)),
+                      ),
+                    ),
+                ],
                 const SizedBox(height: 8),
                 Note(s.compareNote),
+                Note(
+                  s.compareLongNote(
+                    rupee(Decimal.fromInt(Scheme.ppf.maxAmount!)),
+                  ),
+                ),
+                Note(s.issue(Issue.msscClosed, Scheme.mssc)),
                 Note(s.estimateOnly),
               ],
             ),
@@ -182,6 +228,21 @@ class _CompareScreenState extends State<CompareScreen> {
       ),
     );
   }
+}
+
+class _GroupTitle extends StatelessWidget {
+  const _GroupTitle(this.text);
+  final String text;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.fromLTRB(4, 14, 4, 6),
+    child: Text(
+      text,
+      style: Theme.of(context).textTheme.titleMedium
+          ?.copyWith(fontWeight: FontWeight.w800),
+    ),
+  );
 }
 
 class _CompareCard extends StatelessWidget {
@@ -255,6 +316,18 @@ class _CompareCard extends StatelessWidget {
                           '${pct(r.input.rate)}% · ${s.months(months)}',
                           style: t.bodySmall,
                         ),
+                        if (!openToAll(r.scheme))
+                          Padding(
+                            padding: const EdgeInsets.only(top: 4),
+                            child: Pill(
+                              r.scheme == Scheme.scss
+                                  ? s.seniorsOnly
+                                  : s.girlChildOnly,
+                              icon: Icons.info_outline_rounded,
+                              background: c.withValues(alpha: 0.12),
+                              foreground: r.scheme.textColor(context),
+                            ),
+                          ),
                       ],
                     ),
                   ),
@@ -297,6 +370,11 @@ class _CompareCard extends StatelessWidget {
                   if (r.scheme.payout != null && r.periodicPayout != null)
                     Text(
                       '${s.payout(r.scheme.payout!)}: ${rupee(r.periodicPayout!)}',
+                      style: t.bodySmall,
+                    ),
+                  if (r.scheme.amountKind == AmountKind.yearly)
+                    Text(
+                      s.yearlyDepositOf(rupee(r.input.amount)),
                       style: t.bodySmall,
                     ),
                   if (r.scheme == Scheme.rd)

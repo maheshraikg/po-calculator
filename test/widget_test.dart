@@ -7,6 +7,9 @@ import 'package:po_sahayak/app/settings.dart';
 import 'package:po_sahayak/app/strings.dart';
 import 'package:po_sahayak/data/saved_account_repository.dart';
 import 'package:po_sahayak/domain/models/scheme.dart';
+import 'package:decimal/decimal.dart';
+import 'package:po_sahayak/features/calculator/calculator_screen.dart';
+import 'package:po_sahayak/features/compare/compare_screen.dart';
 import 'package:po_sahayak/features/result/result_screen.dart';
 import 'package:po_sahayak/features/schemes/scheme_details_screen.dart';
 import 'package:po_sahayak/features/settings/feedback_card.dart';
@@ -435,5 +438,56 @@ void main() {
     expect(find.text('₹1,488'), findsOneWidget);
     expect(find.text('₹3,720'), findsWidgets);
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('calculator shows all scheme facts and opens full details', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(360 * 3, 720 * 3);
+    tester.view.devicePixelRatio = 3;
+    addTearDown(tester.view.reset);
+    await pumpApp(tester);
+    final nav = tester.state<NavigatorState>(find.byType(Navigator).first);
+    nav.push(
+      MaterialPageRoute<void>(
+        builder: (_) => const CalculatorScreen(scheme: Scheme.mis),
+      ),
+    );
+    await tester.pumpAndSettle();
+    final button = find.text('Documents needed & share with customer');
+    await tester.scrollUntilVisible(
+      button,
+      300,
+      scrollable: find.byType(Scrollable).last,
+    );
+    expect(find.text('About Monthly Income Scheme'), findsOneWidget);
+    expect(find.byType(SchemeInfoCard), findsOneWidget);
+    await tester.drag(find.byType(Scrollable).last, const Offset(0, -300));
+    await tester.pumpAndSettle();
+    await tester.tap(button);
+    await tester.pumpAndSettle();
+    expect(find.byType(SchemeDetailsScreen), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  test('compare covers every open scheme in three groups', () {
+    final groups = compareAll(
+      Decimal.fromInt(100000),
+      DateTime(2026, 10, 10),
+      (_) => Decimal.parse('7'),
+    );
+    expect(groups.map((g) => g.$1), CompareGroup.values);
+    final shown = {for (final (_, rs) in groups) ...rs.map((r) => r.scheme)};
+    expect(shown, Scheme.openable.toSet());
+    // Over ₹1.5 lakh, PPF and SSY take the yearly limit.
+    final big = compareAll(
+      Decimal.fromInt(500000),
+      DateTime(2026, 10, 10),
+      (_) => Decimal.parse('7'),
+    ).last.$2;
+    expect(
+      big.map((r) => r.input.amount),
+      everyElement(Decimal.fromInt(150000)),
+    );
   });
 }

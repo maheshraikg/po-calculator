@@ -389,6 +389,8 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                   ),
                   const SizedBox(height: 12),
                   Note(s.estimateOnly),
+                  const SizedBox(height: 8),
+                  SchemeInfoCard(scheme: scheme),
                 ],
               ),
             ),
