@@ -10,7 +10,7 @@ import '../../widgets/common.dart';
 import '../accounts/backup_sheet.dart';
 import '../rates/rates_screen.dart';
 
-const String kAppVersion = '1.4.1';
+const String kAppVersion = '1.5.0';
 
 /// Direct link to the newest APK.
 const String kDownloadUrl =

@@ -10,6 +10,7 @@ import '../../domain/engine/eligibility.dart';
 import '../../domain/models/result.dart';
 import '../../domain/models/scheme.dart';
 import '../schemes/scheme_details_screen.dart';
+import 'official_forms.dart';
 import '../../widgets/common.dart';
 import '../../widgets/motion.dart';
 import '../../widgets/share_card.dart';
@@ -284,6 +285,10 @@ class _StaffScreenState extends State<StaffScreen> {
                 ),
                 Appear(
                   delay: Appear.step(3, ms: 80),
+                  child: OfficialForms(color: c),
+                ),
+                Appear(
+                  delay: Appear.step(4, ms: 80),
                   child: SectionCard(
                     icon: Icons.bolt_rounded,
                     title: s.quickCalc,

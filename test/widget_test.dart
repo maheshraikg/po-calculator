@@ -226,6 +226,12 @@ void main() {
       );
     }
     expect(find.textContaining('Only the 5-year TD'), findsNothing);
+    await pumpApp(tester);
+    await tester.tap(find.text('Staff').last);
+    await tester.pumpAndSettle();
+    expect(find.text('Official forms'), findsOneWidget);
+    expect(find.text('Account Opening Form'), findsOneWidget);
+    expect(find.text('KYC form (SB-KYC)'), findsOneWidget);
   });
 
   testWidgets('scheme details open from Staff and share the text', (
