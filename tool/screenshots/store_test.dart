@@ -1,6 +1,7 @@
 // Play Store phone screenshots (1080x1920, at most 8) from the current app.
 //
 //   FLUTTER_ROOT=<sdk> flutter test tool/screenshots/store_test.dart
+//   (TABLET=1 renders tablet-size screens into store/screenshots/raw_tablet/)
 //
 // Needs Roboto (Flutter SDK cache) and Noto Sans for the Indian scripts
 // (apt install fonts-noto-core). Output: store/screenshots/raw/*.png (then python3 tool/make_store_screenshots.py)
@@ -39,7 +40,8 @@ void main() {
   final sdk = Platform.environment['FLUTTER_ROOT'] ?? '/opt/flutter';
   final mf = '$sdk/bin/cache/artifacts/material_fonts';
   const noto = '/usr/share/fonts/truetype/noto';
-  const out = 'store/screenshots/raw';
+  final tablet = Platform.environment['TABLET'] == '1';
+  final out = tablet ? 'store/screenshots/raw_tablet' : 'store/screenshots/raw';
   const scripts = [
     'Kannada',
     'Devanagari',
@@ -71,7 +73,9 @@ void main() {
   });
 
   testWidgets('store screenshots', (tester) async {
-    await tester.binding.setSurfaceSize(const Size(540, 960));
+    await tester.binding.setSurfaceSize(
+      tablet ? const Size(800, 1280) : const Size(540, 960),
+    );
     SharedPreferences.setMockInitialValues({'lang': 'en'});
     final settings = await AppSettings.load();
     final accounts = await SavedAccountRepository.load();

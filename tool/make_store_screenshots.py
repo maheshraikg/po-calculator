@@ -1,10 +1,15 @@
-"""Play Store phone screenshots with headlines: python3 tool/make_store_screenshots.py
+"""Play Store screenshots with headlines: python3 tool/make_store_screenshots.py [--tablet]
 
 Reads the raw app screens in store/screenshots/raw/ (made by
 tool/screenshots/store_test.dart) and writes 1080x1920 images to
 store/screenshots/en/: a headline, a short line and the screen in a phone.
 """
+import sys
+
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
+
+# --tablet: tablet-size app screens (raw_tablet/) in a tablet frame, to tablet/.
+TABLET = '--tablet' in sys.argv
 
 W, H = 1080, 1920
 MF = '/opt/flutter-sdk/flutter/bin/cache/artifacts/material_fonts'
@@ -63,11 +68,11 @@ def headline(d, text, y):
 
 
 def phone(path, top):
-    sw = 800
+    sw = 860 if TABLET else 800
     shot = Image.open(path).convert('RGB')
     sh = int(shot.height * sw / shot.width)
     shot = shot.resize((sw, sh), Image.LANCZOS)
-    pad, r = 18, 64
+    pad, r = (30, 44) if TABLET else (18, 64)
     pw, ph = sw + 2 * pad, sh + 2 * pad
     frame = Image.new('RGBA', (pw, ph), (0, 0, 0, 0))
     fd = ImageDraw.Draw(frame)
@@ -117,6 +122,7 @@ for i, (name, title, sub) in enumerate(SLIDES):
     else:
         y = languages(d, y + 6) - 10
     d.rounded_rectangle((W / 2 - 50, y + 8, W / 2 + 50, y + 16), 4, fill=YELLOW)
-    img = Image.alpha_composite(img, phone(f'store/screenshots/raw/{name}.png', y + 60))
-    img.convert('RGB').save(f'store/screenshots/en/{name}.png')
-    print(f'store/screenshots/en/{name}.png')
+    raw, out = ('raw_tablet', 'tablet') if TABLET else ('raw', 'en')
+    img = Image.alpha_composite(img, phone(f'store/screenshots/{raw}/{name}.png', y + 60))
+    img.convert('RGB').save(f'store/screenshots/{out}/{name}.png')
+    print(f'store/screenshots/{out}/{name}.png')
