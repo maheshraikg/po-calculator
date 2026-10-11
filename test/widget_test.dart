@@ -579,4 +579,38 @@ void main() {
     expect(find.text('Age 60+ only'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('compare: "I want ₹" shows the deposit needed', (tester) async {
+    await pumpApp(tester);
+    await tester.tap(find.text('Compare').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('I want ₹'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField).first, '500000');
+    await tester.pumpAndSettle();
+    expect(find.text('How much to deposit to get this amount'), findsOneWidget);
+    expect(find.text('Deposit once'), findsOneWidget);
+    // KVP doubles the money.
+    await tester.scrollUntilVisible(
+      find.text('Kisan Vikas Patra'),
+      200,
+      scrollable: find.byType(Scrollable).last,
+    );
+    expect(
+      find.descendant(
+        of: find.ancestor(
+          of: find.text('Kisan Vikas Patra'),
+          matching: find.byType(Card),
+        ),
+        matching: find.text('₹2,50,000'),
+      ),
+      findsOneWidget,
+    );
+    await tester.scrollUntilVisible(
+      find.text('Save every year'),
+      200,
+      scrollable: find.byType(Scrollable).last,
+    );
+    expect(tester.takeException(), isNull);
+  });
 }

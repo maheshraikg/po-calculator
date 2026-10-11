@@ -7,6 +7,7 @@ import '../../app/scope.dart';
 import '../../app/theme.dart';
 import '../../domain/engine/calculators.dart';
 import '../../domain/engine/eligibility.dart';
+import '../../domain/engine/goal.dart';
 import '../../domain/models/result.dart';
 import '../../domain/models/scheme.dart';
 import '../../widgets/common.dart';
@@ -88,10 +89,38 @@ class CompareScreen extends StatefulWidget {
 class _CompareScreenState extends State<CompareScreen> {
   final _amount = TextEditingController(text: '100000');
 
+  /// "I want ₹" mode: the deposit needed in each scheme to reach the amount.
+  var _goal = false;
+
   @override
   void dispose() {
     _amount.dispose();
     super.dispose();
+  }
+
+  List<Widget> _goalCards(BuildContext context, Decimal target) {
+    final s = context.s, rates = context.rates;
+    final opening = DateUtils.dateOnly(DateTime.now());
+    final plans = [
+      for (final sc in kGoalSchemes)
+        goalPlan(sc, target, opening, rates.current(sc).rate),
+    ];
+    var i = 0;
+    return [
+      for (final kind in const [
+        AmountKind.lumpSum,
+        AmountKind.monthly,
+        AmountKind.yearly,
+      ]) ...[
+        _GroupTitle(s.goalGroup(kind)),
+        for (final p in plans.where((p) => p.result.scheme.amountKind == kind))
+          Appear(
+            key: ValueKey('goal-${p.result.scheme.code}-$target'),
+            delay: Appear.step(i++, ms: 60),
+            child: _GoalCard(plan: p, target: target),
+          ),
+      ],
+    ];
   }
 
   @override
@@ -131,8 +160,14 @@ class _CompareScreenState extends State<CompareScreen> {
                       const LanguageToggle(onDark: true),
                     ],
                   ),
+                  const SizedBox(height: 10),
+                  _ModeSwitch(
+                    goal: _goal,
+                    onChanged: (g) => setState(() => _goal = g),
+                  ),
+                  const SizedBox(height: 8),
                   Text(
-                    s.compareTitle,
+                    _goal ? s.goalTitle : s.compareTitle,
                     style: t.bodyLarge?.copyWith(
                       color: Colors.white.withValues(alpha: 0.85),
                     ),
@@ -195,31 +230,38 @@ class _CompareScreenState extends State<CompareScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                for (final (g, rs) in groups) ...[
-                  _GroupTitle(s.compareGroup(g)),
-                  for (final r in rs)
-                    Appear(
-                      key: ValueKey('${r.scheme.code}-${amount ?? ''}'),
-                      delay: Appear.step(i++, ms: 60),
-                      child: _CompareCard(
-                        result: r,
-                        best: rs
-                            .map((r) => r.maturityValue)
-                            .reduce((a, b) => a > b ? a : b),
-                        isBest:
-                            g == CompareGroup.fiveYears &&
-                            r == rs.firstWhere((r) => openToAll(r.scheme)),
+                if (_goal && amount != null && amount >= Decimal.fromInt(1000))
+                  ..._goalCards(context, amount)
+                else if (!_goal)
+                  for (final (g, rs) in groups) ...[
+                    _GroupTitle(s.compareGroup(g)),
+                    for (final r in rs)
+                      Appear(
+                        key: ValueKey('${r.scheme.code}-${amount ?? ''}'),
+                        delay: Appear.step(i++, ms: 60),
+                        child: _CompareCard(
+                          result: r,
+                          best: rs
+                              .map((r) => r.maturityValue)
+                              .reduce((a, b) => a > b ? a : b),
+                          isBest:
+                              g == CompareGroup.fiveYears &&
+                              r == rs.firstWhere((r) => openToAll(r.scheme)),
+                        ),
                       ),
-                    ),
-                ],
+                  ],
                 const SizedBox(height: 8),
-                Note(s.compareNote),
-                Note(
-                  s.compareLongNote(
-                    rupee(Decimal.fromInt(Scheme.ppf.maxAmount!)),
+                if (_goal)
+                  Note(s.goalNote)
+                else ...[
+                  Note(s.compareNote),
+                  Note(
+                    s.compareLongNote(
+                      rupee(Decimal.fromInt(Scheme.ppf.maxAmount!)),
+                    ),
                   ),
-                ),
-                Note(s.issue(Issue.msscClosed, Scheme.mssc)),
+                  Note(s.issue(Issue.msscClosed, Scheme.mssc)),
+                ],
                 Note(s.estimateOnly),
               ],
             ),
@@ -383,6 +425,166 @@ class _CompareCard extends StatelessWidget {
                       style: t.bodySmall,
                     ),
                 ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// "I have ₹" / "I want ₹" switch on the red header.
+class _ModeSwitch extends StatelessWidget {
+  const _ModeSwitch({required this.goal, required this.onChanged});
+  final bool goal;
+  final ValueChanged<bool> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final s = context.s;
+    Widget side(bool g, IconData icon, String text) {
+      final on = goal == g;
+      return Expanded(
+        child: Material(
+          color: on ? Brand.yellow : Colors.transparent,
+          borderRadius: BorderRadius.circular(14),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(14),
+            onTap: () => onChanged(g),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(icon, size: 18, color: on ? Brand.ink : Colors.white),
+                  const SizedBox(width: 6),
+                  Flexible(
+                    child: Text(
+                      text,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: on ? Brand.ink : Colors.white,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(18),
+      ),
+      child: Row(
+        children: [
+          side(false, Icons.account_balance_wallet_rounded, s.modeHave),
+          side(true, Icons.flag_rounded, s.modeWant),
+        ],
+      ),
+    );
+  }
+}
+
+class _GoalCard extends StatelessWidget {
+  const _GoalCard({required this.plan, required this.target});
+  final GoalPlan plan;
+  final Decimal target;
+
+  @override
+  Widget build(BuildContext context) {
+    final s = context.s, r = plan.result, sc = r.scheme, c = sc.color;
+    final t = Theme.of(context).textTheme;
+    final months = sc == Scheme.kvp ? kvpMonths(r.input.rate) : sc.tenureMonths;
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute<void>(builder: (_) => ResultScreen(result: r)),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  IconBadge(sc.icon, c, size: 40),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          s.schemeName(sc),
+                          style: t.titleSmall?.copyWith(
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        Text(
+                          '${pct(r.input.rate)}% · ${s.months(months)}',
+                          style: t.bodySmall,
+                        ),
+                        if (!openToAll(sc))
+                          Padding(
+                            padding: const EdgeInsets.only(top: 4),
+                            child: Pill(
+                              s.girlChildOnly,
+                              icon: Icons.info_outline_rounded,
+                              background: c.withValues(alpha: 0.12),
+                              foreground: sc.textColor(context),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      s.goalDepositLabel(sc.amountKind),
+                      style: t.bodyMedium,
+                    ),
+                  ),
+                  Flexible(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerRight,
+                      child: Text(
+                        rupee(r.input.amount),
+                        style: t.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.w800,
+                          color: plan.reached ? sc.textColor(context) : null,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                plan.reached
+                    ? s.goalYouGet(rupee(r.maturityValue), s.months(months))
+                    : s.goalNotReached(
+                        rupee(r.input.amount),
+                        rupee(r.maturityValue),
+                      ),
+                style: t.bodySmall?.copyWith(
+                  color: plan.reached
+                      ? null
+                      : Theme.of(context).colorScheme.error,
+                ),
               ),
             ],
           ),
