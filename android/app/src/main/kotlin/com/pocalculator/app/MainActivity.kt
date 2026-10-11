@@ -1,4 +1,4 @@
-package com.kspstadk.posahayak
+package com.pocalculator.app
 
 import io.flutter.embedding.android.FlutterActivity
 
