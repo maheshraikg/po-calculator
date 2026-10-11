@@ -5,14 +5,35 @@ import '../../app/format.dart';
 import '../../app/scope.dart';
 import '../../app/theme.dart';
 import '../../data/saved_account_repository.dart';
+import '../../domain/models/account_filter.dart';
 import '../../reminders/notification_service.dart';
 import '../../widgets/common.dart';
 import '../../widgets/motion.dart';
 import '../result/result_screen.dart';
 import 'backup_sheet.dart';
 
-class AccountsScreen extends StatelessWidget {
+/// Whether [a] belongs under [f] on [today].
+bool matchesFilter(SavedAccount a, AccountFilter f, DateTime today) {
+  final m = a.result.maturityDate;
+  return switch (f) {
+    AccountFilter.all => true,
+    AccountFilter.thisMonth => m.year == today.year && m.month == today.month,
+    AccountFilter.next3Months =>
+      !m.isBefore(today) &&
+          m.isBefore(DateTime(today.year, today.month + 3, today.day + 1)),
+    AccountFilter.matured => m.isBefore(today),
+  };
+}
+
+class AccountsScreen extends StatefulWidget {
   const AccountsScreen({super.key});
+
+  @override
+  State<AccountsScreen> createState() => _AccountsScreenState();
+}
+
+class _AccountsScreenState extends State<AccountsScreen> {
+  var _filter = AccountFilter.all;
 
   @override
   Widget build(BuildContext context) {
@@ -37,6 +58,15 @@ class AccountsScreen extends StatelessWidget {
               .take(3)
               .toList();
           final white = Colors.white.withValues(alpha: 0.85);
+          final shown = [
+            for (final a in list)
+              if (matchesFilter(a, _filter, today)) a,
+          ];
+          if (_filter != AccountFilter.all) {
+            shown.sort(
+              (a, b) => a.result.maturityDate.compareTo(b.result.maturityDate),
+            );
+          }
           return ListView(
             padding: EdgeInsets.zero,
             children: [
@@ -134,9 +164,53 @@ class AccountsScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      for (final (i, a) in list.indexed)
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          for (final f in AccountFilter.values)
+                            ChoiceChip(
+                              label: Text(
+                                '${s.accountFilter(f)} '
+                                '(${list.where((a) => matchesFilter(a, f, today)).length})',
+                              ),
+                              selected: _filter == f,
+                              selectedColor: Brand.yellow,
+                              onSelected: (_) => setState(() => _filter = f),
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      if (_filter != AccountFilter.all)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 4, left: 4),
+                          child: Text(
+                            s.filteredTotal(
+                              shown.length,
+                              rupee(
+                                shown.fold(
+                                  Decimal.zero,
+                                  (a, e) => a + e.result.maturityValue,
+                                ),
+                              ),
+                            ),
+                            style: t.titleSmall?.copyWith(
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      if (shown.isEmpty)
+                        Padding(
+                          padding: const EdgeInsets.all(24),
+                          child: Text(
+                            s.noAccountsInFilter,
+                            textAlign: TextAlign.center,
+                            style: t.bodyLarge,
+                          ),
+                        ),
+                      for (final (i, a) in shown.indexed)
                         Appear(
-                          key: ValueKey(a.id),
+                          key: ValueKey('${a.id}-$_filter'),
                           delay: Appear.step(i, ms: 70),
                           child: _AccountCard(account: a, today: today),
                         ),

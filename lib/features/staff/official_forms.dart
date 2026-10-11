@@ -33,40 +33,41 @@ const kFormLinks = (
   all: 'https://app.indiapost.gov.in/enterpriseportal/banking/post-saving-schemes',
   nsi: 'https://www.nsiindia.gov.in/InternalPage.aspx?Id_Pk=38',
   handbooks: 'https://www.indiapost.gov.in/banking-services/handbooks',
+  // Replaces Form 15G/15H from 1 April 2026 (Income-tax Act, 2025).
+  form121: 'https://www.incometaxindia.gov.in/w/form-no.-121',
 );
+
+/// Opens [url] in the browser; if that fails, copies it.
+Future<void> openLink(BuildContext context, String url) async {
+  final s = context.s;
+  final messenger = ScaffoldMessenger.of(context);
+  var ok = false;
+  try {
+    ok = await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+  } catch (_) {}
+  if (!ok) {
+    await Clipboard.setData(ClipboardData(text: url));
+    messenger.showSnackBar(SnackBar(content: Text(s.linkCopied2)));
+  }
+}
+
+/// Shares [title] and [url] (e.g. to a customer on WhatsApp).
+Future<void> sendLink(BuildContext context, String title, String url) async {
+  final s = context.s;
+  final messenger = ScaffoldMessenger.of(context);
+  try {
+    await SharePlus.instance.share(
+      ShareParams(text: '$title\n$url\n— ${s.appTitle}'),
+    );
+  } catch (_) {
+    messenger.showSnackBar(SnackBar(content: Text(s.shareFailed)));
+  }
+}
 
 /// Card with links to the official forms, opened in the phone's browser.
 class OfficialForms extends StatelessWidget {
   const OfficialForms({super.key, required this.color});
   final Color color;
-
-  Future<void> _open(BuildContext context, String url) async {
-    final s = context.s;
-    final messenger = ScaffoldMessenger.of(context);
-    var ok = false;
-    try {
-      ok = await launchUrl(
-        Uri.parse(url),
-        mode: LaunchMode.externalApplication,
-      );
-    } catch (_) {}
-    if (!ok) {
-      await Clipboard.setData(ClipboardData(text: url));
-      messenger.showSnackBar(SnackBar(content: Text(s.linkCopied2)));
-    }
-  }
-
-  Future<void> _send(BuildContext context, String title, String url) async {
-    final s = context.s;
-    final messenger = ScaffoldMessenger.of(context);
-    try {
-      await SharePlus.instance.share(
-        ShareParams(text: '$title\n$url\n— ${s.appTitle}'),
-      );
-    } catch (_) {
-      messenger.showSnackBar(SnackBar(content: Text(s.shareFailed)));
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -83,16 +84,16 @@ class OfficialForms extends StatelessWidget {
           IconButton(
             tooltip: s.downloadForm,
             icon: Icon(Icons.download_rounded, color: color),
-            onPressed: () => _open(context, url),
+            onPressed: () => openLink(context, url),
           ),
           IconButton(
             tooltip: s.sendForm,
             icon: const Icon(Icons.share_rounded),
-            onPressed: () => _send(context, title, url),
+            onPressed: () => sendLink(context, title, url),
           ),
         ],
       ),
-      onTap: () => _open(context, url),
+      onTap: () => openLink(context, url),
     );
     // A web page listing many forms.
     Widget link(IconData icon, String title, String url) => ListTile(
@@ -100,7 +101,7 @@ class OfficialForms extends StatelessWidget {
       leading: IconBadge(icon, color, size: 34),
       title: Text(title),
       trailing: const Icon(Icons.open_in_new_rounded, size: 20),
-      onTap: () => _open(context, url),
+      onTap: () => openLink(context, url),
     );
     return SectionCard(
       icon: Icons.description_rounded,
@@ -133,6 +134,7 @@ class OfficialForms extends StatelessWidget {
           form(Icons.sync_alt_rounded, s.formSbToRd, kFormLinks.sbToRd),
           form(Icons.update_rounded, s.formExtension, kFormLinks.extension),
           form(Icons.receipt_rounded, s.formChequeBook, kFormLinks.chequeBook),
+          form(Icons.receipt_long_rounded, s.formNo121, kFormLinks.form121),
           Note(s.silentAccountNote, icon: Icons.bedtime_rounded),
           _Heading(s.formsClaim),
           form(Icons.assignment_ind_rounded, s.formClaim, kFormLinks.claim),

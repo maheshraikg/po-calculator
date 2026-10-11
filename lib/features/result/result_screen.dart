@@ -14,6 +14,8 @@ import '../../widgets/motion.dart';
 import '../../widgets/schedule_table.dart';
 import '../../widgets/share_card.dart';
 import '../schemes/scheme_details_screen.dart';
+import '../staff/official_forms.dart';
+import 'print_screen.dart';
 import 'suggestions.dart';
 
 class ResultScreen extends StatelessWidget {
@@ -87,6 +89,18 @@ class ResultScreen extends StatelessWidget {
                       ],
                     ),
                   ),
+                const SizedBox(height: 8),
+                step(
+                  OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: scheme.textColor(context),
+                      minimumSize: const Size.fromHeight(48),
+                    ),
+                    onPressed: () => openPrintPreview(context, r),
+                    icon: const Icon(Icons.picture_as_pdf_rounded),
+                    label: Text(s.printout),
+                  ),
+                ),
                 const SizedBox(height: 6),
                 if (scheme != Scheme.sb && r.schedule.length > 1)
                   step(
@@ -142,6 +156,8 @@ class ResultScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           _TaxByYear(rows: fyRows, color: c),
+                          if (scheme.tdsApplies)
+                            _TdsReminder(rows: fyRows, scheme: scheme),
                           if (scheme == Scheme.nsc) Note(s.nscTaxNote),
                           Note(s.taxNote, icon: Icons.receipt_long_outlined),
                         ],
@@ -648,6 +664,81 @@ class _TaxByYearState extends State<_TaxByYear> {
         const SizedBox(height: 8),
         ValueTile(s.totalTax, rupee(total), emphasis: true),
       ],
+    );
+  }
+}
+
+/// Form 121 reminder when one financial year's interest crosses the TDS
+/// limit (₹50,000; ₹1,00,000 for age 60+, which SCSS always is).
+class _TdsReminder extends StatelessWidget {
+  const _TdsReminder({required this.rows, required this.scheme});
+  final Map<String, Decimal> rows;
+  final Scheme scheme;
+
+  static final general = Decimal.fromInt(50000);
+  static final senior = Decimal.fromInt(100000);
+
+  @override
+  Widget build(BuildContext context) {
+    final s = context.s, t = Theme.of(context).textTheme;
+    final limit = scheme == Scheme.scss ? senior : general;
+    final over = rows.entries.where((e) => e.value > limit);
+    if (over.isEmpty) return const SizedBox.shrink();
+    final top = over.reduce((a, b) => a.value >= b.value ? a : b);
+    final text = [
+      s.tdsReminder(top.key, rupee(top.value), rupee(limit)),
+      if (scheme != Scheme.scss) s.tdsSeniorLimit(rupee(senior)),
+    ].join(' ');
+    return Container(
+      margin: const EdgeInsets.only(top: 12),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Brand.yellow.withValues(alpha: 0.18),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Brand.yellow),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              const Icon(
+                Icons.notification_important_rounded,
+                color: Brand.yellow,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                s.tdsTitle,
+                style: t.titleSmall?.copyWith(fontWeight: FontWeight.w800),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(text, style: t.bodyMedium),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              FilledButton.icon(
+                style: FilledButton.styleFrom(
+                  backgroundColor: Brand.yellow,
+                  foregroundColor: Brand.ink,
+                ),
+                onPressed: () => openLink(context, kFormLinks.form121),
+                icon: const Icon(Icons.download_rounded),
+                label: Text(s.openForm121),
+              ),
+              OutlinedButton.icon(
+                onPressed: () =>
+                    sendLink(context, s.formNo121, kFormLinks.form121),
+                icon: const Icon(Icons.share_rounded),
+                label: Text(s.sendForm),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

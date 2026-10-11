@@ -1,8 +1,12 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:po_sahayak/app/scope.dart';
+import 'package:po_sahayak/domain/models/result.dart';
+import 'package:po_sahayak/features/accounts/accounts_screen.dart';
 import 'package:po_sahayak/app/settings.dart';
 import 'package:po_sahayak/app/strings.dart';
 import 'package:po_sahayak/data/saved_account_repository.dart';
@@ -10,6 +14,7 @@ import 'package:po_sahayak/domain/models/scheme.dart';
 import 'package:decimal/decimal.dart';
 import 'package:po_sahayak/features/calculator/calculator_screen.dart';
 import 'package:po_sahayak/features/compare/compare_screen.dart';
+import 'package:po_sahayak/features/result/print_screen.dart';
 import 'package:po_sahayak/features/result/result_screen.dart';
 import 'package:po_sahayak/features/schemes/scheme_details_screen.dart';
 import 'package:po_sahayak/features/settings/feedback_card.dart';
@@ -373,7 +378,7 @@ void main() {
     await pumpApp(tester);
     await tester.tap(find.text('Staff').last);
     await tester.pumpAndSettle();
-    expect(find.byTooltip('Download'), findsNWidgets(15));
+    expect(find.byTooltip('Download'), findsNWidgets(16));
     await tester.tap(find.byTooltip('Send to customer').first);
     await tester.pumpAndSettle();
     final text = (calls.single.arguments as Map)['text'] as String;
@@ -611,6 +616,129 @@ void main() {
       200,
       scrollable: find.byType(Scrollable).last,
     );
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('SCSS ₹15 lakh: Form 121 TDS reminder', (tester) async {
+    await pumpApp(tester);
+    final nav = tester.state<NavigatorState>(find.byType(Navigator).first);
+    nav.push(
+      MaterialPageRoute<void>(
+        builder: (_) => ResultScreen(result: calc(Scheme.scss, 1500000, '8.2')),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.text('TDS reminder'),
+      300,
+      scrollable: find.byType(Scrollable).last,
+    );
+    expect(
+      find.textContaining('above the ₹1,00,000 TDS limit'),
+      findsOneWidget,
+    );
+    expect(find.text('Form 121'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('no TDS reminder for a small TD', (tester) async {
+    await pumpApp(tester);
+    final nav = tester.state<NavigatorState>(find.byType(Navigator).first);
+    nav.push(
+      MaterialPageRoute<void>(
+        builder: (_) => ResultScreen(result: calc(Scheme.td5, 100000, '7.5')),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('TDS reminder', skipOffstage: false), findsNothing);
+  });
+
+  testWidgets('customer printout shows the page and the PDF button', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    final nav = tester.state<NavigatorState>(find.byType(Navigator).first);
+    nav.push(
+      MaterialPageRoute<void>(
+        builder: (_) => ResultScreen(result: calc(Scheme.ssy, 50000, '8.2')),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Customer printout'));
+    await tester.pumpAndSettle();
+    expect(find.byType(PrintPage), findsOneWidget);
+    expect(find.text('Share PDF'), findsOneWidget);
+    // 21 years, one row each, plus the header.
+    expect(find.text('21'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  test('PDF is one A4 page', () async {
+    final png = base64Decode(
+      'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
+    );
+    final pdf = await pagePdf(png);
+    final text = latin1.decode(pdf);
+    expect(text.startsWith('%PDF'), isTrue);
+    expect(RegExp(r'/Type\s*/Page[^s]').allMatches(text).length, 1);
+    expect(text, contains('595'));
+  });
+
+  testWidgets('custom interest calculator and account filters', (tester) async {
+    tester.view.physicalSize = const Size(400 * 3, 900 * 3);
+    tester.view.devicePixelRatio = 3;
+    addTearDown(tester.view.reset);
+    await pumpApp(tester);
+    await tester.tap(find.text('Staff').last);
+    await tester.pumpAndSettle();
+    final list = find.byType(Scrollable).last;
+    await tester.scrollUntilVisible(
+      find.text('Custom interest calculator'),
+      300,
+      scrollable: list,
+    );
+    final simple = find.widgetWithText(ChoiceChip, 'Simple');
+    await tester.scrollUntilVisible(simple, 200, scrollable: list);
+    await tester.pumpAndSettle();
+    await tester.tap(simple);
+    await tester.pumpAndSettle();
+    // ₹1,00,000 at 7% simple for 5 years: ₹35,000.
+    expect(find.text('₹35,000'), findsOneWidget);
+    expect(find.text('₹1,35,000'), findsOneWidget);
+
+    await tester.tap(find.text('Accounts').last);
+    await tester.pumpAndSettle();
+    final repo = tester.element(find.byType(AccountsScreen)).accounts;
+    final today = DateUtils.dateOnly(DateTime.now());
+    await tester.runAsync(() async {
+      // Matures in about 10 days, and one matured last year.
+      await repo.add(
+        'Soon',
+        CalcInput(
+          scheme: Scheme.td1,
+          amount: Decimal.fromInt(10000),
+          opening: DateTime(today.year - 1, today.month, today.day + 10),
+          rate: Decimal.parse('6.9'),
+        ),
+      );
+      await repo.add(
+        'Old',
+        CalcInput(
+          scheme: Scheme.td1,
+          amount: Decimal.fromInt(10000),
+          opening: DateTime(today.year - 3, today.month, today.day),
+          rate: Decimal.parse('6.9'),
+        ),
+      );
+    });
+    await tester.pumpAndSettle();
+    expect(find.text('Next 3 months (1)'), findsOneWidget);
+    expect(find.text('Matured (1)'), findsOneWidget);
+    await tester.tap(find.text('Matured (1)'));
+    await tester.pumpAndSettle();
+    expect(find.text('Old'), findsOneWidget);
+    expect(find.text('Soon'), findsNothing);
+    expect(find.textContaining('Maturing this month'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 }

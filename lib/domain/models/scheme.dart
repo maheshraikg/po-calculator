@@ -87,6 +87,9 @@ enum Scheme {
   bool get showsTaxableInterest =>
       isTd || this == rd || this == mis || this == scss || this == nsc;
 
+  /// Post office deducts TDS on this interest above the yearly limit.
+  bool get tdsApplies => isTd || this == rd || this == mis || this == scss;
+
   /// Schemes on the Compare screen (lump sum over about 5 years).
   static const compared = [td5, nsc, kvp, mis, rd];
 

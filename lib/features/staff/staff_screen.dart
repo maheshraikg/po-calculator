@@ -11,6 +11,7 @@ import '../../domain/models/result.dart';
 import '../../domain/models/scheme.dart';
 import '../schemes/scheme_details_screen.dart';
 import 'official_forms.dart';
+import 'custom_interest_card.dart';
 import 'rd_rebate_card.dart';
 import 'service_charges.dart';
 import '../../widgets/common.dart';
@@ -359,6 +360,10 @@ class _StaffScreenState extends State<StaffScreen> {
                 Appear(
                   delay: Appear.step(5, ms: 80),
                   child: RdRebateCard(color: Scheme.rd.color),
+                ),
+                Appear(
+                  delay: Appear.step(6, ms: 80),
+                  child: CustomInterestCard(color: c),
                 ),
                 Appear(
                   delay: Appear.step(6, ms: 80),
