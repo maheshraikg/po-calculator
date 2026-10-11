@@ -1,7 +1,12 @@
 # PO Calculator
 
 **Download (Android APK):**
-https://github.com/maheshraikg/po-calculator/releases/latest/download/po_calculator.apk
+- Small, for most phones made since 2019 (64-bit):
+  https://github.com/maheshraikg/po-calculator/releases/latest/download/po_calculator_small.apk
+- Full, works on every phone (also old 32-bit ones):
+  https://github.com/maheshraikg/po-calculator/releases/latest/download/po_calculator.apk
+
+Both are the same app with the same key, so either one updates the other.
 
 Offline calculator and helper for Post Office small savings schemes, in 11
 Indian languages, for customers, agents and counter staff. Built from the

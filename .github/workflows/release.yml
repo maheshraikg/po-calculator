@@ -4,6 +4,7 @@ name: Release (direct APK link)
 # GitHub release v<pubspec version>, marked "latest", so this link always
 # serves the newest APK:
 # https://github.com/maheshraikg/po-calculator/releases/latest/download/po_calculator.apk
+# and a smaller 64-bit-only APK at .../latest/download/po_calculator_small.apk
 # The same version is re-uploaded in place; bump `version:` in pubspec.yaml
 # for a new release.
 on:
@@ -46,6 +47,17 @@ jobs:
           flutter build apk --release --obfuscate --split-debug-info=build/symbols
           cp build/app/outputs/flutter-apk/app-release.apk po_calculator.apk
 
+      # Smaller APK with only the 64-bit ARM code that nearly every phone
+      # since ~2019 runs. Not --split-per-abi: that raises the version code
+      # per ABI, so phones could not move between this and the full APK.
+      # Same version code and key, so either file updates the other.
+      - name: Build small APK (64-bit phones)
+        run: |
+          flutter build apk --release --target-platform android-arm64 \
+            --obfuscate --split-debug-info=build/symbols-arm64
+          cp build/app/outputs/flutter-apk/app-release.apk po_calculator_small.apk
+          ls -l po_calculator.apk po_calculator_small.apk
+
       # Play Store bundle, signed with your private upload key. Runs only
       # when the four PO_UPLOAD_* repository secrets exist (see README.md).
       # The bundle is a private workflow artifact, never a public release;
@@ -84,10 +96,10 @@ jobs:
         run: |
           VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: *//; s/+.*//')
           TAG="v$VERSION"
-          NOTES="PO Calculator v$VERSION: offline Post Office savings calculator in 11 Indian languages. Install: download po_calculator.apk on your phone, open it, and allow installing from this source. Estimate only, confirm at your post office. Not affiliated with India Post."
+          NOTES="PO Calculator v$VERSION: offline Post Office savings calculator in 11 Indian languages. Install: download po_calculator_small.apk (smaller, for most phones made since 2019) or po_calculator.apk (works on every phone) on your phone, open it, and allow installing from this source. Estimate only, confirm at your post office. Not affiliated with India Post."
           if gh release view "$TAG" >/dev/null 2>&1; then
-            gh release upload "$TAG" po_calculator.apk --clobber
+            gh release upload "$TAG" po_calculator.apk po_calculator_small.apk --clobber
           else
-            gh release create "$TAG" po_calculator.apk --title "PO Calculator v$VERSION" \
+            gh release create "$TAG" po_calculator.apk po_calculator_small.apk --title "PO Calculator v$VERSION" \
               --notes "$NOTES" --latest --target "$GITHUB_SHA"
           fi
