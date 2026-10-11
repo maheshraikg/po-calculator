@@ -5,6 +5,7 @@ name: Release (direct APK link)
 # serves the newest APK:
 # https://github.com/maheshraikg/po-calculator/releases/latest/download/po_calculator.apk
 # and a smaller 64-bit-only APK at .../latest/download/po_calculator_small.apk
+# and the Play Store bundle at .../latest/download/po_calculator.aab
 # The same version is re-uploaded in place; bump `version:` in pubspec.yaml
 # for a new release.
 on:
@@ -97,9 +98,15 @@ jobs:
           VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: *//; s/+.*//')
           TAG="v$VERSION"
           NOTES="PO Calculator v$VERSION: offline Post Office savings calculator in 11 Indian languages. Install: download po_calculator_small.apk (smaller, for most phones made since 2019) or po_calculator.apk (works on every phone) on your phone, open it, and allow installing from this source. Estimate only, confirm at your post office. Not affiliated with India Post."
+          FILES="po_calculator.apk po_calculator_small.apk"
+          # The Play Store bundle (no key inside, safe to share), when built.
+          if [ -f play/po_calculator.aab ]; then
+            cp play/po_calculator.aab po_calculator.aab
+            FILES="$FILES po_calculator.aab"
+          fi
           if gh release view "$TAG" >/dev/null 2>&1; then
-            gh release upload "$TAG" po_calculator.apk po_calculator_small.apk --clobber
+            gh release upload "$TAG" $FILES --clobber
           else
-            gh release create "$TAG" po_calculator.apk po_calculator_small.apk --title "PO Calculator v$VERSION" \
+            gh release create "$TAG" $FILES --title "PO Calculator v$VERSION" \
               --notes "$NOTES" --latest --target "$GITHUB_SHA"
           fi
