@@ -73,16 +73,20 @@ img = place(img, phone('store/screenshots/raw/2_result.png', 236), (868, 262), -
 
 # Left: icon, name, tagline, features, languages.
 d = ImageDraw.Draw(img)
-icon = Image.open('store/icon_512.png').convert('RGBA').resize((104, 104), Image.LANCZOS)
-ring = Image.new('RGBA', (W, H), (0, 0, 0, 0))
-ImageDraw.Draw(ring).rounded_rectangle((44, 38, 160, 154), 30, fill=(0, 0, 0, 80))
-img = Image.alpha_composite(img, ring.filter(ImageFilter.GaussianBlur(8)))
-im = Image.new('L', (104, 104), 0)
-ImageDraw.Draw(im).rounded_rectangle((0, 0, 103, 103), 24, fill=255)
-img.paste(icon, (48, 40), im)
+icon = Image.open('store/icon_512.png').convert('RGBA').resize((108, 108), Image.LANCZOS)
+# White tile behind the icon so the red icon stands out on the red background.
+shadow = Image.new('RGBA', (W, H), (0, 0, 0, 0))
+ImageDraw.Draw(shadow).rounded_rectangle((42, 36, 170, 164), 34, fill=(0, 0, 0, 110))
+img = Image.alpha_composite(img, shadow.filter(ImageFilter.GaussianBlur(10)))
+tile = Image.new('RGBA', (W, H), (0, 0, 0, 0))
+ImageDraw.Draw(tile).rounded_rectangle((38, 28, 166, 156), 34, fill='white')
+img = Image.alpha_composite(img, tile)
+im = Image.new('L', (108, 108), 0)
+ImageDraw.Draw(im).rounded_rectangle((0, 0, 107, 107), 26, fill=255)
+img.paste(icon, (48, 38), im)
 d = ImageDraw.Draw(img)
-d.text((172, 50), 'India Post savings', font=font('Roboto-Medium.ttf', 24), fill=(*YELLOW, 255))
-d.text((172, 80), 'Every scheme. One app.', font=font('Roboto-Medium.ttf', 24), fill='white')
+d.text((188, 52), 'Post Office savings', font=font('Roboto-Medium.ttf', 24), fill=(*YELLOW, 255))
+d.text((188, 82), 'Every scheme. One app.', font=font('Roboto-Medium.ttf', 24), fill='white')
 
 d.text((46, 168), 'PO Calculator', font=font('Roboto-Black.ttf', 70), fill='white')
 d.text((49, 252), 'Interest, maturity, tax & forms — in seconds',
