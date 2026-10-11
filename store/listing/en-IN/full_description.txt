@@ -14,19 +14,24 @@ SCHEMES
 WHAT YOU GET
 • Maturity value, total interest and maturity date
 • Year-wise table and growth chart
-• Interest for each financial year with an estimated tax at your slab, and the TDS rules
+• Interest for each financial year with an estimated tax at your slab, and a TDS reminder with Form 121 (earlier 15G/15H)
 • Premature closure amount for any date, including the 5-year TD rule and the official KVP table
 • PPF and SCSS extension, PPF and SSY withdrawal limits
-• Compare schemes side by side for the same amount
+• Compare every scheme for the same amount, grouped by term
+• "I want ₹" goal planner: how much to deposit once, every month or every year to reach your target
+• Smart suggestions: put MIS or SCSS interest into an RD, or see a scheme that pays more
+• Customer printout: a one-page PDF of the result to share or print
 • Interest rates since 2016, so older accounts use the rate on their opening date
-• Save your accounts, get a reminder before maturity, and back them up to a file
+• Save your accounts, see what is maturing this month, get a reminder before maturity, and back them up to a file
 • Share a clean result card on WhatsApp
 
 FOR POST OFFICE STAFF AND AGENTS
 • Eligibility check and document checklist
 • Step-by-step account opening guide for every scheme
 • Full scheme details you can send to a customer in their language
-• Official forms (Account Opening, KYC, SB-7, SB-7B, SB-7C and more) to download or send
+• Official forms to download or send: account opening, KYC, withdrawal, closure, nomination, duplicate passbook, extension, death claim and more
+• RD advance deposit rebate calculator and post office service charges
+• Custom simple and compound interest calculator
 • Enter a new quarter's interest rates as soon as they are announced
 
 PRIVATE AND OFFLINE
