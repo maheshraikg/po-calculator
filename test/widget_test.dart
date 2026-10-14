@@ -741,4 +741,25 @@ void main() {
     expect(find.textContaining('Maturing this month'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('official sources and disclaimer on home and settings', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    final list = find.byType(Scrollable).first;
+    await tester.scrollUntilVisible(
+      find.text('Official sources'),
+      300,
+      scrollable: list,
+    );
+    expect(find.textContaining('It is not a government app'), findsWidgets);
+    expect(
+      find.text('www.nsiindia.gov.in', skipOffstage: false),
+      findsWidgets,
+    );
+    await tester.tap(find.text('Settings').last);
+    await tester.pumpAndSettle();
+    expect(find.text('Official sources', skipOffstage: false), findsWidgets);
+    expect(tester.takeException(), isNull);
+  });
 }

@@ -7,6 +7,7 @@ import '../../domain/models/scheme.dart';
 import '../../widgets/common.dart';
 import '../../widgets/motion.dart';
 import '../calculator/calculator_screen.dart';
+import '../../widgets/official_sources.dart';
 
 /// Schemes grouped as on the Home screen.
 List<(String, List<Scheme>)> homeGroups(BuildContext context) {
@@ -87,6 +88,7 @@ class HomeScreen extends StatelessWidget {
               children: [
                 Note(s.estimateOnly),
                 Note(s.notAffiliated, icon: Icons.gpp_maybe_outlined),
+                const OfficialSourcesCard(),
               ],
             ),
           ),

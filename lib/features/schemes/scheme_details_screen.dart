@@ -11,6 +11,8 @@ import '../../domain/models/scheme.dart';
 import '../../domain/rates/rate_repository.dart';
 import '../../widgets/common.dart';
 import '../../widgets/motion.dart';
+import '../../widgets/official_sources.dart';
+import '../staff/official_forms.dart';
 
 void openSchemeDetails(BuildContext context, Scheme scheme) =>
     Navigator.of(context).push(
@@ -92,6 +94,11 @@ class SchemeInfoCard extends StatelessWidget {
             onPressed: () => openSchemeDetails(context, scheme),
             icon: const Icon(Icons.folder_copy_rounded),
             label: Text(s.documentsAndShare),
+          ),
+          TextButton.icon(
+            onPressed: () => openLink(context, kOfficialSources.indiaPost),
+            icon: const Icon(Icons.verified_rounded, size: 18),
+            label: Text(s.sourceLine),
           ),
         ],
       ),
@@ -272,6 +279,7 @@ class SchemeDetailsScreen extends StatelessWidget {
                 ),
                 Note(s.documentsNote),
                 Note(s.estimateOnly),
+                OfficialSourcesCard(color: c),
               ],
             ),
           ),

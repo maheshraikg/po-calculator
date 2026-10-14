@@ -1,3 +1,5 @@
+Disclaimer: PO Calculator is an independent app. It is not a government app and does not represent India Post, the Department of Posts, the National Savings Institute or the Government of India.
+
 PO Calculator is a free, offline Post Office savings calculator in 11 Indian languages: English, Kannada, Hindi, Bengali, Marathi, Telugu, Tamil, Gujarati, Malayalam, Odia and Punjabi. Work out the maturity amount, interest and maturity date for every Post Office small savings scheme in seconds, without internet.
 
 SCHEMES
@@ -37,5 +39,12 @@ FOR POST OFFICE STAFF AND AGENTS
 PRIVATE AND OFFLINE
 No login, no internet permission, works offline. Your saved accounts stay on your phone.
 
+OFFICIAL SOURCES OF INFORMATION
+Scheme rules, interest rates and tax facts in this app are taken from these official government websites:
+• India Post – Post Office savings schemes: https://www.indiapost.gov.in
+• National Savings Institute, Ministry of Finance: https://www.nsiindia.gov.in
+• Department of Economic Affairs (interest rates): https://dea.gov.in
+• Income Tax Department (TDS, Form 121): https://www.incometaxindia.gov.in
+The same links are inside the app (Home, Settings and every scheme's details).
+
 Results are estimates; confirm at your post office.
-Not affiliated with India Post or the Government of India.

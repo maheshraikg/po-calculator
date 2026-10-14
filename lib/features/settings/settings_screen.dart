@@ -10,8 +10,9 @@ import '../../widgets/common.dart';
 import '../accounts/backup_sheet.dart';
 import '../rates/rates_screen.dart';
 import 'feedback_card.dart';
+import '../../widgets/official_sources.dart';
 
-const String kAppVersion = '1.7.1';
+const String kAppVersion = '1.7.2';
 
 /// Direct link to the newest APK.
 const String kDownloadUrl =
@@ -199,6 +200,7 @@ class SettingsScreen extends StatelessWidget {
                     },
                   ),
                 ),
+                const OfficialSourcesCard(),
                 const FeedbackCard(),
                 Card(
                   child: ListTile(
