@@ -7,7 +7,7 @@ import 'common.dart';
 /// Official government sources for the scheme rules, rates and tax facts
 /// in the app (Google Play's Misleading Claims policy asks for them).
 const kOfficialSources = (
-  indiaPost: 'https://www.indiapost.gov.in',
+  indiaPost: 'https://www.indiapost.gov.in/banking-services/savings',
   nsi: 'https://www.nsiindia.gov.in',
   rates: 'https://dea.gov.in',
   incomeTax: 'https://www.incometaxindia.gov.in',

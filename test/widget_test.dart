@@ -378,12 +378,12 @@ void main() {
     await pumpApp(tester);
     await tester.tap(find.text('Staff').last);
     await tester.pumpAndSettle();
-    expect(find.byTooltip('Download'), findsNWidgets(16));
+    expect(find.byTooltip('Download'), findsNWidgets(18));
     await tester.tap(find.byTooltip('Send to customer').first);
     await tester.pumpAndSettle();
     final text = (calls.single.arguments as Map)['text'] as String;
     expect(text, contains('Account Opening Form'));
-    expect(text, contains('https://www.indiapost.gov.in/'));
+    expect(text, contains('forms/sb_aof_account_opening.pdf'));
   });
 
   test('feedback e-mail goes to the developer with the app version', () {

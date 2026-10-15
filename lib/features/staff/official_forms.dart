@@ -6,38 +6,36 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../app/scope.dart';
 import '../../widgets/common.dart';
 
-/// Official form PDFs found on www.indiapost.gov.in (Department of Posts)
-/// and www.nsiindia.gov.in (National Savings Institute, Ministry of
-/// Finance). If a PDF moves, the two "all forms" pages still list them.
+/// Base address of the form PDFs kept in this repository (forms/), taken
+/// unchanged from the Department of Posts SB Order No. 35/2020. India Post's
+/// own document links expire, so the app never links to them directly.
+const kFormsBase =
+    'https://raw.githubusercontent.com/maheshraikg/po-calculator/main/forms/';
+
 const kFormLinks = (
-  aof: 'https://www.indiapost.gov.in/api/documents/file/103o1nb2vy390fz153juo737nye34dwb0s5c13mn9n34umv02teh3g2ty34feo',
-  kyc: 'https://www.indiapost.gov.in/api/documents/file/kyc-form-annexure-ii-20250816-3c618a',
-  sb7: 'https://www.india.gov.in/forms-department-posts',
-  sb7b: 'https://www.indiapost.gov.in/api/documents/file/application-form-for-pre-mature-closure-of-account-20250816-94647b',
-  sb7c: 'https://www.indiapost.gov.in/api/documents/file/1002tsi0ocui0e42h3e7lt04p3a063gh0sjra3ivyj3bwi204nwv0e1xv02tlj',
-  maturity:
-      'https://www.nsiindia.gov.in/writereaddata/FileUploads/FORM%209.pdf',
-  dupPassbook: 'https://www.indiapost.gov.in/api/documents/file/1034vgz2oxl701hcp3cu870hc7a03a4g0s5cb3fmtn3e8eo04nkp0e32834uon',
-  nomination:
-      'https://www.nsiindia.gov.in/writereaddata/FileUploads/FORM%2010.pdf',
-  sbToRd: 'https://www.india.gov.in/forms-department-posts',
-  extension: 'https://www.india.gov.in/forms-department-posts',
-  chequeBook: 'https://www.indiapost.gov.in/api/documents/file/application-for-fresh-cheque-book-20250816-dde18d',
-  claim: 'https://www.nsiindia.gov.in/writereaddata/FileUploads/FORM%2011.pdf',
-  affidavit:
-      'https://www.nsiindia.gov.in/writereaddata/FileUploads/FORM%2013.pdf',
-  disclaimer:
-      'https://www.nsiindia.gov.in/writereaddata/FileUploads/FORM%2014.pdf',
-  indemnity:
-      'https://www.nsiindia.gov.in/writereaddata/FileUploads/FORM%2015.pdf',
-  all: 'https://www.india.gov.in/forms-department-posts',
+  aof: '${kFormsBase}sb_aof_account_opening.pdf',
+  kyc: '${kFormsBase}sb_kyc.pdf',
+  sb7: '${kFormsBase}sb7_withdrawal.pdf',
+  sb7b: '${kFormsBase}sb7b_premature_closure.pdf',
+  sb7c: '${kFormsBase}sb7c_loan_withdrawal.pdf',
+  maturity: '${kFormsBase}sb7a_closure_on_maturity.pdf',
+  dupPassbook: '${kFormsBase}sb41_duplicate_passbook.pdf',
+  nomination: '${kFormsBase}form10_nomination.pdf',
+  sbToRd: '${kFormsBase}sb83_auto_transfer_sb_to_rd.pdf',
+  extension: '${kFormsBase}sb_ext1_extension.pdf',
+  chequeBook: '${kFormsBase}sb_cqe4_cheque_book.pdf',
+  payInSlip: '${kFormsBase}sb103_pay_in_slip.pdf',
+  transfer: '${kFormsBase}form5_transfer_of_account.pdf',
+  claim: '${kFormsBase}form11_deceased_claim.pdf',
+  affidavit: '${kFormsBase}form13_affidavit.pdf',
+  disclaimer: '${kFormsBase}form14_disclaimer.pdf',
+  indemnity: '${kFormsBase}form15_indemnity.pdf',
+  // Pages, not files.
+  all: 'https://www.indiapost.gov.in/documents/reports/forms',
   nsi: 'https://www.nsiindia.gov.in/InternalPage.aspx?Id_Pk=38',
-  handbooks: 'https://www.indiapost.gov.in/banking-services/handbooks',
+  handbooks: 'https://www.indiapost.gov.in/documents/ebooks',
   // Replaces Form 15G/15H from 1 April 2026 (Income-tax Act, 2025).
   form121: 'https://www.incometaxindia.gov.in/w/form-no.-121',
-  // SB-7, SB-83 and SB-EXT1 have no permanent file address on India Post
-  // (the site hands out expiring links), so they open the national portal's
-  // Department of Posts forms page (all); app.indiapost.gov.in is unreliable.
 );
 
 /// Opens [url] in the browser; if that fails, copies it.
@@ -81,7 +79,6 @@ class OfficialForms extends StatelessWidget {
       contentPadding: EdgeInsets.zero,
       leading: IconBadge(icon, color, size: 34),
       title: Text(title),
-      subtitle: url == kFormLinks.all ? Text(s.onFormsPage) : null,
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -138,6 +135,8 @@ class OfficialForms extends StatelessWidget {
           form(Icons.sync_alt_rounded, s.formSbToRd, kFormLinks.sbToRd),
           form(Icons.update_rounded, s.formExtension, kFormLinks.extension),
           form(Icons.receipt_rounded, s.formChequeBook, kFormLinks.chequeBook),
+          form(Icons.input_rounded, s.formPayInSlip, kFormLinks.payInSlip),
+          form(Icons.move_up_rounded, s.formTransfer, kFormLinks.transfer),
           form(Icons.receipt_long_rounded, s.formNo121, kFormLinks.form121),
           Note(s.silentAccountNote, icon: Icons.bedtime_rounded),
           _Heading(s.formsClaim),
