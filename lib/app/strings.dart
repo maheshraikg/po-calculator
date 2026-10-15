@@ -5,6 +5,7 @@ library;
 import '../domain/engine/closure.dart';
 import '../domain/engine/custom_interest.dart';
 import '../domain/models/account_filter.dart';
+import '../domain/models/tool.dart';
 import '../domain/engine/eligibility.dart';
 import '../domain/models/scheme.dart';
 import '../domain/models/service_fee.dart';
@@ -103,6 +104,25 @@ class S {
     or: 'ଉତ୍ସ: ଇଣ୍ଡିଆ ପୋଷ୍ଟ (indiapost.gov.in)',
     pa: 'ਸਰੋਤ: ਇੰਡੀਆ ਪੋਸਟ (indiapost.gov.in)',
   );
+  String get toolsTitle => _t(
+    'Calculators & tools',
+    'ಕ್ಯಾಲ್ಕುಲೇಟರ್‌ಗಳು ಮತ್ತು ಸಾಧನಗಳು',
+    hi: 'कैलकुलेटर और टूल्स',
+    bn: 'ক্যালকুলেটর ও টুলস',
+    mr: 'कॅल्क्युलेटर आणि साधने',
+    te: 'కాలిక్యులేటర్లు & సాధనాలు',
+    ta: 'கால்குலேட்டர்கள் & கருவிகள்',
+    gu: 'કેલ્ક્યુલેટર અને સાધનો',
+    ml: 'കാൽക്കുലേറ്ററുകളും ടൂളുകളും',
+    or: 'କ୍ୟାଲକୁଲେଟର ଓ ସାଧନ',
+    pa: 'ਕੈਲਕੁਲੇਟਰ ਅਤੇ ਟੂਲ',
+  );
+  String toolName(Tool t) => switch (t) {
+    Tool.rdRebate => rdRebate,
+    Tool.customInterest => customCalc,
+    Tool.forms => officialForms,
+    Tool.serviceCharges => serviceCharges,
+  };
   String get officialSources => _t(
     'Official sources',
     'ಅಧಿಕೃತ ಮೂಲಗಳು',
@@ -3096,17 +3116,17 @@ class S {
     pa: 'ਮਿਆਦ ਪੂਰੀ ਹੋਣ ’ਤੇ ਬੰਦ ਕਰਨਾ (ਸਰਕਾਰੀ ਫਾਰਮ 9)',
   );
   String get onFormsPage => _t(
-    'Opens the India Post forms page: pick this form there',
-    'ಭಾರತೀಯ ಅಂಚೆ ಅರ್ಜಿಗಳ ಪುಟ ತೆರೆಯುತ್ತದೆ: ಅಲ್ಲಿ ಈ ಅರ್ಜಿ ಆಯ್ಕೆಮಾಡಿ',
-    hi: 'इंडिया पोस्ट फॉर्म पेज खुलता है: वहाँ यह फॉर्म चुनें',
-    bn: 'ইন্ডিয়া পোস্টের ফর্ম পেজ খোলে: সেখানে এই ফর্মটি বেছে নিন',
-    mr: 'इंडिया पोस्ट फॉर्म पेज उघडते: तिथे हा फॉर्म निवडा',
-    te: 'ఇండియా పోస్ట్ ఫారాల పేజీ తెరుచుకుంటుంది: అక్కడ ఈ ఫారం ఎంచుకోండి',
-    ta: 'இந்தியா போஸ்ட் படிவப் பக்கம் திறக்கும்: அங்கே இந்தப் படிவத்தைத் தேர்ந்தெடுக்கவும்',
-    gu: 'ઇન્ડિયા પોસ્ટનું ફોર્મ પેજ ખુલે છે: ત્યાં આ ફોર્મ પસંદ કરો',
-    ml: 'ഇന്ത്യ പോസ്റ്റ് ഫോം പേജ് തുറക്കും: അവിടെ ഈ ഫോം തിരഞ്ഞെടുക്കുക',
-    or: 'ଇଣ୍ଡିଆ ପୋଷ୍ଟ ଫର୍ମ ପୃଷ୍ଠା ଖୋଲେ: ସେଠାରେ ଏହି ଫର୍ମ ବାଛନ୍ତୁ',
-    pa: 'ਇੰਡੀਆ ਪੋਸਟ ਫਾਰਮ ਪੰਨਾ ਖੁੱਲ੍ਹਦਾ ਹੈ: ਉੱਥੇ ਇਹ ਫਾਰਮ ਚੁਣੋ',
+    'Opens the Government forms page (india.gov.in): pick this form there',
+    'ಸರ್ಕಾರಿ ಅರ್ಜಿಗಳ ಪುಟ (india.gov.in) ತೆರೆಯುತ್ತದೆ: ಅಲ್ಲಿ ಈ ಅರ್ಜಿ ಆಯ್ಕೆಮಾಡಿ',
+    hi: 'सरकारी फॉर्म पेज (india.gov.in) खुलता है: वहाँ यह फॉर्म चुनें',
+    bn: 'সরকারি ফর্ম পেজ (india.gov.in) খোলে: সেখানে এই ফর্মটি বেছে নিন',
+    mr: 'सरकारी फॉर्म पेज (india.gov.in) उघडते: तिथे हा फॉर्म निवडा',
+    te: 'ప్రభుత్వ ఫారాల పేజీ (india.gov.in) తెరుచుకుంటుంది: అక్కడ ఈ ఫారం ఎంచుకోండి',
+    ta: 'அரசு படிவப் பக்கம் (india.gov.in) திறக்கும்: அங்கே இந்தப் படிவத்தைத் தேர்ந்தெடுக்கவும்',
+    gu: 'સરકારી ફોર્મ પેજ (india.gov.in) ખુલે છે: ત્યાં આ ફોર્મ પસંદ કરો',
+    ml: 'സർക്കാർ ഫോം പേജ് (india.gov.in) തുറക്കും: അവിടെ ഈ ഫോം തിരഞ്ഞെടുക്കുക',
+    or: 'ସରକାରୀ ଫର୍ମ ପୃଷ୍ଠା (india.gov.in) ଖୋଲେ: ସେଠାରେ ଏହି ଫର୍ମ ବାଛନ୍ତୁ',
+    pa: 'ਸਰਕਾਰੀ ਫਾਰਮ ਪੰਨਾ (india.gov.in) ਖੁੱਲ੍ਹਦਾ ਹੈ: ਉੱਥੇ ਇਹ ਫਾਰਮ ਚੁਣੋ',
   );
   String get formsServices => _t(
     'Account services',

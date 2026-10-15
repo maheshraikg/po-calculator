@@ -7,6 +7,8 @@ import '../../domain/models/scheme.dart';
 import '../../widgets/common.dart';
 import '../../widgets/motion.dart';
 import '../calculator/calculator_screen.dart';
+import '../../domain/models/tool.dart';
+import 'tools.dart';
 import '../../widgets/official_sources.dart';
 
 /// Schemes grouped as on the Home screen.
@@ -42,6 +44,39 @@ class HomeScreen extends StatelessWidget {
       body: CustomScrollView(
         slivers: [
           SliverToBoxAdapter(child: _Header(top: top)),
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
+            sliver: SliverToBoxAdapter(
+              child: Text(
+                s.toolsTitle,
+                style: Theme.of(context).textTheme.titleMedium
+                    ?.copyWith(fontWeight: FontWeight.w800),
+              ),
+            ),
+          ),
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            sliver: SliverList.list(
+              children: [
+                for (var i = 0; i < Tool.values.length; i += 2)
+                  IntrinsicHeight(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        for (var j = i; j < i + 2; j++) ...[
+                          if (j > i) const SizedBox(width: 4),
+                          Expanded(
+                            child: j < Tool.values.length
+                                ? ToolTile(tool: Tool.values[j])
+                                : const SizedBox(),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+              ],
+            ),
+          ),
           for (final (title, schemes) in homeGroups(context)) ...[
             SliverPadding(
               padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),

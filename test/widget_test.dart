@@ -42,13 +42,13 @@ Future<void> pumpApp(WidgetTester tester, {String lang = 'en'}) async {
 void main() {
   testWidgets('home shows scheme tiles and switches language', (tester) async {
     await pumpApp(tester);
-    expect(find.text('Deposits'), findsOneWidget);
+    expect(find.text('Deposits', skipOffstage: false), findsOneWidget);
     expect(find.text('Highest rate now'), findsOneWidget);
     await tester.tap(find.text('English').first);
     await tester.pumpAndSettle();
     await tester.tap(find.text('ಕನ್ನಡ'));
     await tester.pumpAndSettle();
-    expect(find.text('ಠೇವಣಿಗಳು'), findsOneWidget);
+    expect(find.text('ಠೇವಣಿಗಳು', skipOffstage: false), findsOneWidget);
     await tester.scrollUntilVisible(
       find.text('TD5'),
       200,
@@ -753,13 +753,24 @@ void main() {
       scrollable: list,
     );
     expect(find.textContaining('It is not a government app'), findsWidgets);
-    expect(
-      find.text('www.nsiindia.gov.in', skipOffstage: false),
-      findsWidgets,
-    );
+    expect(find.text('www.nsiindia.gov.in', skipOffstage: false), findsWidgets);
     await tester.tap(find.text('Settings').last);
     await tester.pumpAndSettle();
     expect(find.text('Official sources', skipOffstage: false), findsWidgets);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('home shows calculators and tools that open', (tester) async {
+    await pumpApp(tester);
+    expect(find.text('Calculators & tools'), findsOneWidget);
+    await tester.tap(find.text('RD advance deposit rebate').first);
+    await tester.pumpAndSettle();
+    expect(find.text('Pay now'), findsOneWidget);
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Custom interest calculator').first);
+    await tester.pumpAndSettle();
+    expect(find.text('Total amount'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 }

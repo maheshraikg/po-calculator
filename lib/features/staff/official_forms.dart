@@ -12,7 +12,7 @@ import '../../widgets/common.dart';
 const kFormLinks = (
   aof: 'https://www.indiapost.gov.in/api/documents/file/103o1nb2vy390fz153juo737nye34dwb0s5c13mn9n34umv02teh3g2ty34feo',
   kyc: 'https://www.indiapost.gov.in/api/documents/file/kyc-form-annexure-ii-20250816-3c618a',
-  sb7: 'https://app.indiapost.gov.in/enterpriseportal/banking/post-saving-schemes',
+  sb7: 'https://www.india.gov.in/forms-department-posts',
   sb7b: 'https://www.indiapost.gov.in/api/documents/file/application-form-for-pre-mature-closure-of-account-20250816-94647b',
   sb7c: 'https://www.indiapost.gov.in/api/documents/file/1002tsi0ocui0e42h3e7lt04p3a063gh0sjra3ivyj3bwi204nwv0e1xv02tlj',
   maturity:
@@ -20,8 +20,8 @@ const kFormLinks = (
   dupPassbook: 'https://www.indiapost.gov.in/api/documents/file/1034vgz2oxl701hcp3cu870hc7a03a4g0s5cb3fmtn3e8eo04nkp0e32834uon',
   nomination:
       'https://www.nsiindia.gov.in/writereaddata/FileUploads/FORM%2010.pdf',
-  sbToRd: 'https://app.indiapost.gov.in/enterpriseportal/banking/post-saving-schemes',
-  extension: 'https://app.indiapost.gov.in/enterpriseportal/banking/post-saving-schemes',
+  sbToRd: 'https://www.india.gov.in/forms-department-posts',
+  extension: 'https://www.india.gov.in/forms-department-posts',
   chequeBook: 'https://www.indiapost.gov.in/api/documents/file/application-for-fresh-cheque-book-20250816-dde18d',
   claim: 'https://www.nsiindia.gov.in/writereaddata/FileUploads/FORM%2011.pdf',
   affidavit:
@@ -30,13 +30,14 @@ const kFormLinks = (
       'https://www.nsiindia.gov.in/writereaddata/FileUploads/FORM%2014.pdf',
   indemnity:
       'https://www.nsiindia.gov.in/writereaddata/FileUploads/FORM%2015.pdf',
-  all: 'https://app.indiapost.gov.in/enterpriseportal/banking/post-saving-schemes',
+  all: 'https://www.india.gov.in/forms-department-posts',
   nsi: 'https://www.nsiindia.gov.in/InternalPage.aspx?Id_Pk=38',
   handbooks: 'https://www.indiapost.gov.in/banking-services/handbooks',
   // Replaces Form 15G/15H from 1 April 2026 (Income-tax Act, 2025).
   form121: 'https://www.incometaxindia.gov.in/w/form-no.-121',
   // SB-7, SB-83 and SB-EXT1 have no permanent file address on India Post
-  // (the site hands out expiring links), so they open the forms page (all).
+  // (the site hands out expiring links), so they open the national portal's
+  // Department of Posts forms page (all); app.indiapost.gov.in is unreliable.
 );
 
 /// Opens [url] in the browser; if that fails, copies it.
