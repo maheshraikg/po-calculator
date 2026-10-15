@@ -11,8 +11,8 @@ import '../../widgets/common.dart';
 /// Finance). If a PDF moves, the two "all forms" pages still list them.
 const kFormLinks = (
   aof: 'https://www.indiapost.gov.in/api/documents/file/103o1nb2vy390fz153juo737nye34dwb0s5c13mn9n34umv02teh3g2ty34feo',
-  kyc: 'https://www.indiapost.gov.in/api/documents/file/U2FsdGVkX1-9mfnUCdZFTv33OeXpoU-WoMJZ-FaPekRTdsjuZn3DeZMDziOdJlU6xtSBMWiglU8XDHYEeTRRWA',
-  sb7: 'https://www.indiapost.gov.in/api/documents/file/U2FsdGVkX1-jEwh0-b1zssAtFRvIzaUd8bCWForCVTxVVN6yCfvaLgAspYw7SeumEA2Mnb04xYikn_TFX-x9Kw',
+  kyc: 'https://www.indiapost.gov.in/api/documents/file/kyc-form-annexure-ii-20250816-3c618a',
+  sb7: 'https://app.indiapost.gov.in/enterpriseportal/banking/post-saving-schemes',
   sb7b: 'https://www.indiapost.gov.in/api/documents/file/application-form-for-pre-mature-closure-of-account-20250816-94647b',
   sb7c: 'https://www.indiapost.gov.in/api/documents/file/1002tsi0ocui0e42h3e7lt04p3a063gh0sjra3ivyj3bwi204nwv0e1xv02tlj',
   maturity:
@@ -20,8 +20,8 @@ const kFormLinks = (
   dupPassbook: 'https://www.indiapost.gov.in/api/documents/file/1034vgz2oxl701hcp3cu870hc7a03a4g0s5cb3fmtn3e8eo04nkp0e32834uon',
   nomination:
       'https://www.nsiindia.gov.in/writereaddata/FileUploads/FORM%2010.pdf',
-  sbToRd: 'https://www.indiapost.gov.in/api/documents/file/U2FsdGVkX1-d3s19Lj2k9paIybRcI-0ZOZakmpwW-Nv9ai-7kbWhEjv53no62nomqE0iLSYM15-gHoIhgOo9bQ',
-  extension: 'https://www.indiapost.gov.in/api/documents/file/U2FsdGVkX1-AJotZRx0nongKE3gvr4NPuWlXdr8n3IwSBAwRC-9BOE_kSeqJ7Yr1eSdoy7WZwLNuwQj5aLvKag',
+  sbToRd: 'https://app.indiapost.gov.in/enterpriseportal/banking/post-saving-schemes',
+  extension: 'https://app.indiapost.gov.in/enterpriseportal/banking/post-saving-schemes',
   chequeBook: 'https://www.indiapost.gov.in/api/documents/file/application-for-fresh-cheque-book-20250816-dde18d',
   claim: 'https://www.nsiindia.gov.in/writereaddata/FileUploads/FORM%2011.pdf',
   affidavit:
@@ -35,6 +35,8 @@ const kFormLinks = (
   handbooks: 'https://www.indiapost.gov.in/banking-services/handbooks',
   // Replaces Form 15G/15H from 1 April 2026 (Income-tax Act, 2025).
   form121: 'https://www.incometaxindia.gov.in/w/form-no.-121',
+  // SB-7, SB-83 and SB-EXT1 have no permanent file address on India Post
+  // (the site hands out expiring links), so they open the forms page (all).
 );
 
 /// Opens [url] in the browser; if that fails, copies it.
@@ -78,6 +80,7 @@ class OfficialForms extends StatelessWidget {
       contentPadding: EdgeInsets.zero,
       leading: IconBadge(icon, color, size: 34),
       title: Text(title),
+      subtitle: url == kFormLinks.all ? Text(s.onFormsPage) : null,
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
