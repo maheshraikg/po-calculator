@@ -1,6 +1,6 @@
 # PO Calculator – Privacy Policy
 
-_Last updated: 10 October 2026_
+_Last updated: 15 October 2026_
 
 PO Calculator ("the app") is an offline Post Office savings calculator made by
 Mahesh Rai. This policy explains what the app does with your information.
@@ -25,9 +25,14 @@ It has no internet permission, no login, no ads, no analytics and no tracking.
   own WhatsApp, email or Google Drive). "Restore" reads a file you pick.
 - **Share:** sharing a result, scheme details, a form link or the app link
   sends text or an image through the app you choose.
-- **Official forms and web pages:** these open in your phone's browser on the
-  India Post (indiapost.gov.in) or National Savings Institute
-  (nsiindia.gov.in) websites. Those sites have their own privacy policies.
+- **Official forms:** Download opens the form PDF in your phone's browser.
+  The PDFs are the Department of Posts specimen forms (SB Order No.
+  35/2020), kept in this app's public GitHub project
+  (raw.githubusercontent.com), because India Post's own form links expire.
+- **Official sources and web pages:** these open in your phone's browser on
+  government websites (indiapost.gov.in, nsiindia.gov.in, dea.gov.in,
+  incometaxindia.gov.in, utilities.cept.gov.in). Those sites, and GitHub,
+  have their own privacy policies.
 - **Suggestions and bug reports:** these open your own e-mail app with a
   message to the developer. If you send it, the developer receives your
   e-mail address, your message, the app version and the app language. It is
@@ -48,8 +53,9 @@ knowingly collect any data from anyone, including children.
 
 ## Not affiliated
 
-PO Calculator is an independent app. It is not affiliated with India Post,
-the Department of Posts or the Government of India. Results are estimates;
+PO Calculator is an independent app. It is not a government app and is not
+affiliated with, or endorsed by, India Post, the Department of Posts, the
+National Savings Institute or the Government of India. Results are estimates;
 confirm at your post office.
 
 ## Changes
