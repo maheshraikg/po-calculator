@@ -147,7 +147,7 @@ class PrintPage extends StatelessWidget {
       ),
     );
     final facts = [
-      row(s.amountLabel(sc.amountKind), rupee(r.input.amount)),
+      row(s.amountLabel(r.input.amountKind), rupee(r.input.amount)),
       row(s.openingDate, dmy(r.input.opening)),
       row(s.rate, '${pct(r.input.rate)}%'),
       if (p != null && r.periodicPayout != null)

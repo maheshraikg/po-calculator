@@ -265,6 +265,8 @@ CalcResult _kvp(CalcInput i) {
 
 /// Yearly deposit [i.amount] made by the 5th of April for [depositYears],
 /// interest compounded yearly for [years], rounded to the rupee each year.
+/// With [CalcInput.monthly], [i.amount] is paid by the 5th of every month
+/// instead: interest on each month's balance, added at the end of the year.
 List<ScheduleRow> _yearlyDeposits(
   CalcInput i, {
   required int years,
@@ -274,8 +276,20 @@ List<ScheduleRow> _yearlyDeposits(
   final rows = <ScheduleRow>[];
   var bal = Decimal.zero;
   for (var y = 1; y <= years; y++) {
-    final dep = y <= depositYears ? i.amount : Decimal.zero;
-    final interest = rupees(percentOf(bal + dep, i.rate));
+    final paying = y <= depositYears;
+    final Decimal dep, interest;
+    if (i.monthly) {
+      final inst = paying ? i.amount : Decimal.zero;
+      var monthsSum = Decimal.zero;
+      for (var m = 1; m <= 12; m++) {
+        monthsSum += bal + inst * Decimal.fromInt(m);
+      }
+      dep = inst * Decimal.fromInt(12);
+      interest = rupees(div(monthsSum * i.rate, k1200));
+    } else {
+      dep = paying ? i.amount : Decimal.zero;
+      interest = rupees(percentOf(bal + dep, i.rate));
+    }
     bal = bal + dep + interest;
     rows.add(
       ScheduleRow(
@@ -323,7 +337,7 @@ CalcResult _ssy(CalcInput i) {
     depositYears: 15,
     dateOf: (y) => addMonths(i.opening, 12 * y),
   );
-  final deposits = i.amount * Decimal.fromInt(15);
+  final deposits = rows.fold(Decimal.zero, (a, r) => a + r.deposit);
   return CalcResult(
     input: i,
     maturityDate: addMonths(i.opening, 252),

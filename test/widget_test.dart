@@ -496,6 +496,63 @@ void main() {
     );
   });
 
+  testWidgets('PPF can be paid every month', (tester) async {
+    await pumpApp(tester);
+    final nav = tester.state<NavigatorState>(find.byType(Navigator).first);
+    nav.push(
+      MaterialPageRoute<void>(
+        builder: (_) => const CalculatorScreen(scheme: Scheme.ppf),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Yearly deposit (₹)'), findsOneWidget);
+    await tester.tap(find.text('Every month'));
+    await tester.pumpAndSettle();
+    expect(find.text('Monthly instalment (₹)'), findsOneWidget);
+    await tester.enterText(find.byType(TextFormField).first, '13000');
+    await tester.ensureVisible(find.text('Calculate'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Calculate'));
+    await tester.pumpAndSettle();
+    expect(find.text('Maximum is ₹12,500.'), findsOneWidget);
+    await tester.enterText(find.byType(TextFormField).first, '12500');
+    await tester.ensureVisible(find.text('Calculate'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Calculate'));
+    await tester.pumpAndSettle();
+    expect(find.byType(ResultScreen), findsOneWidget);
+    expect(find.text('₹22,50,000'), findsWidgets);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('MIS result shows the MIS + RD plan', (tester) async {
+    await pumpApp(tester);
+    final nav = tester.state<NavigatorState>(find.byType(Navigator).first);
+    nav.push(
+      MaterialPageRoute<void>(
+        builder: (_) => ResultScreen(result: calc(Scheme.mis, 500000, '7.4')),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.text('MIS + RD plan'),
+      300,
+      scrollable: find.byType(Scrollable).last,
+    );
+    await tester.scrollUntilVisible(
+      find.text('See the RD details'),
+      200,
+      scrollable: find.byType(Scrollable).last,
+    );
+    expect(find.textContaining('Effective return'), findsOneWidget);
+    await tester.ensureVisible(find.text('See the RD details'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('See the RD details'));
+    await tester.pumpAndSettle();
+    expect(find.byType(ResultScreen, skipOffstage: false), findsNWidgets(2));
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('joint account switch shows where joint accounts are allowed', (
     tester,
   ) async {

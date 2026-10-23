@@ -57,6 +57,15 @@ List<Issue> amountIssues(
   ];
 }
 
+/// PPF/SSY paid every month: the 12 instalments must fit the yearly limit.
+Decimal monthlyMax(Scheme s) => Decimal.fromInt(s.maxAmount! ~/ 12);
+
+List<Issue> monthlyIssues(Scheme s, Decimal amount) => [
+  if (amount <= Decimal.zero) Issue.belowMin,
+  if (amount > monthlyMax(s)) Issue.aboveMax,
+  if (amount % Decimal.fromInt(s.multipleOf) != Decimal.zero) Issue.notMultiple,
+];
+
 List<Issue> checkEligibility(EligibilityInput e) {
   final s = e.scheme, age = e.age;
   return [

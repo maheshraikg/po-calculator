@@ -165,6 +165,7 @@ class ResultScreen extends StatelessWidget {
                     ),
                   ),
                 step(SuggestionCard(result: r)),
+                step(ComboCard(result: r)),
                 if (scheme != Scheme.sb) step(_ClosureSection(result: r)),
                 ..._extensions(context).map(step),
                 ..._withdrawals(context).map(step),

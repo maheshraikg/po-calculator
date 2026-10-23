@@ -16,7 +16,7 @@ String resultText(S s, CalcResult r) {
   final p = r.scheme.payout;
   return [
     '${s.schemeName(r.scheme)} (${r.scheme.code})',
-    '${s.amountLabel(r.scheme.amountKind)}: ${rupee(r.input.amount)}',
+    '${s.amountLabel(r.input.amountKind)}: ${rupee(r.input.amount)}',
     '${s.openingDate}: ${dmy(r.input.opening)}',
     s.rateUsed(pct(r.input.rate), null),
     if (p != null && r.periodicPayout != null)
@@ -192,7 +192,7 @@ class ShareCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                line(s.amountLabel(r.scheme.amountKind), rupee(r.input.amount)),
+                line(s.amountLabel(r.input.amountKind), rupee(r.input.amount)),
                 line(s.openingDate, dmy(r.input.opening)),
                 line(s.rate, '${pct(r.input.rate)}%'),
                 if (p != null && r.periodicPayout != null)

@@ -30,11 +30,16 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
   final _age = TextEditingController();
   late DateTime _opening;
   bool _joint = false;
+
+  /// PPF/SSY: deposit every month instead of once a year.
+  bool _monthly = false;
   DateTime? _rateFrom;
   bool _rateEdited = false;
   bool _started = false;
 
   Scheme get scheme => widget.scheme;
+  bool get _canMonthly => scheme == Scheme.ppf || scheme == Scheme.ssy;
+  AmountKind get _kind => _monthly ? AmountKind.monthly : scheme.amountKind;
 
   @override
   void initState() {
@@ -92,6 +97,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
       opening: _opening,
       rate: _parse(_rate.text)!,
       rateFrom: _rateEdited ? null : _rateFrom,
+      monthly: _monthly,
     );
     Navigator.of(context).push(
       MaterialPageRoute<void>(
@@ -105,6 +111,10 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
 
   /// Suggested amounts that fit the scheme's limits.
   List<int> get _quick {
+    if (_monthly) {
+      final max = monthlyMax(scheme).toBigInt().toInt();
+      return [500, 1000, 2000, 5000, 10000, max];
+    }
     final base = switch (scheme.amountKind) {
       AmountKind.monthly => [500, 1000, 2000, 5000, 10000],
       AmountKind.yearly => [12000, 50000, 100000, 150000],
@@ -220,6 +230,28 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  if (_canMonthly) ...[
+                    SegmentedButton<bool>(
+                      segments: [
+                        ButtonSegment(
+                          value: false,
+                          label: Text(s.everyYear),
+                          icon: const Icon(Icons.calendar_today_rounded),
+                        ),
+                        ButtonSegment(
+                          value: true,
+                          label: Text(s.everyMonth),
+                          icon: const Icon(Icons.calendar_month_rounded),
+                        ),
+                      ],
+                      selected: {_monthly},
+                      onSelectionChanged: (v) => setState(() {
+                        _monthly = v.first;
+                        _amount.clear();
+                      }),
+                    ),
+                    const SizedBox(height: 14),
+                  ],
                   Appear(
                     child: TextFormField(
                       controller: _amount,
@@ -229,7 +261,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                         fontWeight: FontWeight.w700,
                       ),
                       decoration: InputDecoration(
-                        labelText: s.amountLabel(scheme.amountKind),
+                        labelText: s.amountLabel(_kind),
                         prefixIcon: Icon(
                           Icons.currency_rupee_rounded,
                           color: c,
@@ -240,6 +272,14 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                       validator: (v) {
                         final a = _parse(v ?? '');
                         if (a == null) return s.enterAmount;
+                        if (_monthly) {
+                          final max = rupee(monthlyMax(scheme));
+                          return monthlyIssues(scheme, a).isEmpty
+                              ? null
+                              : monthlyIssues(scheme, a)
+                                    .map((i) => s.issue(i, scheme, max: max))
+                                    .join('\n');
+                        }
                         final issues = amountIssues(scheme, a, h: holding);
                         if (issues.isEmpty) return null;
                         final max = scheme.maxAmount == null
@@ -376,7 +416,10 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                   ),
                   if (scheme == Scheme.mssc)
                     Note(s.issue(Issue.msscClosed, scheme)),
-                  if (scheme == Scheme.ppf) Note(s.ppfNote),
+                  if (_monthly)
+                    Note(s.monthlyDepositNote(rupee(monthlyMax(scheme))))
+                  else if (scheme == Scheme.ppf)
+                    Note(s.ppfNote),
                   if (scheme == Scheme.rd) Note(s.rdNote),
                   const SizedBox(height: 22),
                   Appear(

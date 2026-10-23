@@ -1,6 +1,8 @@
+import 'package:decimal/decimal.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:po_sahayak/domain/engine/calculators.dart';
 import 'package:po_sahayak/domain/engine/closure.dart';
+import 'package:po_sahayak/domain/models/result.dart';
 import 'package:po_sahayak/domain/models/scheme.dart';
 
 import 'helpers.dart';
@@ -67,6 +69,43 @@ void main() {
       final w = ssyWithdrawal(r, 5)!;
       expect(w.year, 14);
       expect(w.limit, (r.schedule[12].balance * d('0.5')).floor());
+    });
+  });
+
+  group('monthly deposits', () {
+    CalcResult monthly(Scheme s, int amount) => calculate(
+      CalcInput(
+        scheme: s,
+        amount: Decimal.fromInt(amount),
+        opening: DateTime(2026, 10, 10),
+        rate: d('7.1'),
+        monthly: true,
+      ),
+    );
+
+    test('PPF ₹12,500 a month: first year interest on each month', () {
+      final r = monthly(Scheme.ppf, 12500);
+      // 12,500 × (1 + 2 + … + 12) × 7.1 / 1200 = 5,768.75.
+      expect(r.schedule.first.deposit, d(150000));
+      expect(r.schedule.first.interest, d(5769));
+      expect(r.totalDeposit, d(2250000));
+      expect(r.maturityDate, DateTime(2042, 4, 1));
+      // Less than paying ₹1,50,000 by 5 April, more than the deposits.
+      final yearly = calc(Scheme.ppf, 150000, '7.1');
+      expect(r.maturityValue < yearly.maturityValue, isTrue);
+      expect(
+        r.maturityValue > d(3800000),
+        isTrue,
+        reason: '${r.maturityValue}',
+      );
+    });
+
+    test('SSY monthly: deposits for 15 years, interest till 21', () {
+      final r = monthly(Scheme.ssy, 1000);
+      expect(r.totalDeposit, d(180000));
+      expect(r.schedule.length, 21);
+      expect(r.schedule[15].deposit, Decimal.zero);
+      expect(r.maturityDate, DateTime(2047, 10, 10));
     });
   });
 }

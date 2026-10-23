@@ -31,6 +31,7 @@ class SavedAccount {
       rateFrom: j['rateFrom'] == null
           ? null
           : DateTime.parse(j['rateFrom'] as String),
+      monthly: j['monthly'] as bool? ?? false,
     ),
   );
 
@@ -59,6 +60,7 @@ class SavedAccount {
     'rate': input.rate.toString(),
     if (input.rateFrom != null)
       'rateFrom': input.rateFrom!.toIso8601String().substring(0, 10),
+    if (input.monthly) 'monthly': true,
   };
 }
 

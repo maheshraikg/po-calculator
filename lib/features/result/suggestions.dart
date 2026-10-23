@@ -5,6 +5,7 @@ import '../../app/format.dart';
 import '../../app/scope.dart';
 import '../../app/theme.dart';
 import '../../domain/engine/calculators.dart';
+import '../../domain/engine/combo.dart';
 import '../../domain/engine/dates.dart';
 import '../../domain/engine/money.dart';
 import '../../domain/models/result.dart';
@@ -182,6 +183,86 @@ class SuggestionCard extends StatelessWidget {
                 ],
               ),
             ),
+        ],
+      ),
+    );
+  }
+}
+
+/// MIS or TD 5 with its interest put into an RD: what the customer has when
+/// the RD matures.
+class ComboCard extends StatelessWidget {
+  const ComboCard({super.key, required this.result});
+  final CalcResult result;
+
+  @override
+  Widget build(BuildContext context) {
+    final s = context.s;
+    final plan = comboFor(result, context.rates.current(Scheme.rd).rate);
+    if (plan == null) return const SizedBox.shrink();
+    final t = Theme.of(context).textTheme;
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    final code = result.scheme.code;
+    final rdColor = Scheme.rd.color;
+    return SectionCard(
+      icon: Icons.account_tree_rounded,
+      title: s.comboTitle(code),
+      color: rdColor,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const SizedBox(height: 12),
+          Text(
+            s.comboIntro(rupee(plan.instalment), dmy(plan.rd.input.opening)),
+            style: t.titleSmall?.copyWith(fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: 8),
+          _ValueRow(label: s.depositBack, value: rupee(plan.deposit)),
+          _ValueRow(
+            label: s.rdMaturityOn(dmy(plan.rd.maturityDate)),
+            value: rupee(plan.rd.maturityValue),
+          ),
+          if (plan.leftover > Decimal.zero)
+            _ValueRow(label: s.leftoverInterest, value: rupee(plan.leftover)),
+          _ValueRow(
+            label: s.totalOn(dmy(plan.rd.maturityDate)),
+            value: rupee(plan.total),
+            highlight: true,
+          ),
+          _ValueRow(label: s.schemeAlone(code), value: rupee(plan.alone)),
+          const SizedBox(height: 6),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              Pill(
+                s.moreBy(rupee(plan.extra)),
+                icon: Icons.trending_up_rounded,
+                background: Colors.green.withValues(alpha: 0.15),
+                foreground: dark ? Colors.white : Colors.green.shade800,
+              ),
+              Pill(
+                s.effectiveReturn(plan.effectiveRate.toStringAsFixed(2)),
+                icon: Icons.percent_rounded,
+                background: rdColor.withValues(alpha: 0.12),
+                foreground: Scheme.rd.textColor(context),
+              ),
+            ],
+          ),
+          Note(s.comboNote(code), icon: Icons.sync_alt_rounded),
+          const SizedBox(height: 4),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton.icon(
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => ResultScreen(result: plan.rd),
+                ),
+              ),
+              icon: const Icon(Icons.open_in_new_rounded),
+              label: Text(s.openRd),
+            ),
+          ),
         ],
       ),
     );

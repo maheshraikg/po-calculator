@@ -13,6 +13,7 @@ class CalcInput {
     required this.opening,
     required this.rate,
     this.rateFrom,
+    this.monthly = false,
   });
 
   final Scheme scheme;
@@ -26,6 +27,12 @@ class CalcInput {
 
   /// When [rate] took effect (null if typed by the user).
   final DateTime? rateFrom;
+
+  /// PPF/SSY only: [amount] is paid every month (by the 5th), not every year.
+  final bool monthly;
+
+  /// What [amount] is: the scheme's kind, or monthly for PPF/SSY monthly.
+  AmountKind get amountKind => monthly ? AmountKind.monthly : scheme.amountKind;
 }
 
 /// One row of the year-wise table.
