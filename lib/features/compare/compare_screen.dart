@@ -93,6 +93,10 @@ class _CompareScreenState extends State<CompareScreen> {
   /// "I want ₹" mode: the deposit needed in each scheme to reach the amount.
   var _goal = false;
 
+  /// Schemes and "+ RD" plans the user switched off in the picker.
+  final _hidden = <Scheme>{};
+  final _hiddenCombos = <Scheme>{};
+
   @override
   void dispose() {
     _amount.dispose();
@@ -143,7 +147,27 @@ class _CompareScreenState extends State<CompareScreen> {
             DateUtils.dateOnly(DateTime.now()),
             (sc) => rates.current(sc).rate,
           );
+    final shown = [
+      for (final (g, rs) in groups)
+        (g, rs.where((r) => !_hidden.contains(r.scheme)).toList()),
+    ].where((g) => g.$2.isNotEmpty).toList();
+    final shownCombos = combos
+        .where((p) => !_hiddenCombos.contains(p.base.scheme))
+        .toList();
     var i = 0;
+    Widget comboSection() => Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _GroupTitle(s.withRdGroup),
+        for (final p in shownCombos)
+          Appear(
+            key: ValueKey('combo-${p.base.scheme.code}-${amount ?? ''}'),
+            delay: Appear.step(i++, ms: 60),
+            child: _ComboCompareCard(plan: p, best: shownCombos.first.total),
+          ),
+      ],
+    );
+    final fiveShown = shown.any((g) => g.$1 == CompareGroup.fiveYears);
     return Scaffold(
       body: ListView(
         padding: EdgeInsets.zero,
@@ -240,8 +264,16 @@ class _CompareScreenState extends State<CompareScreen> {
               children: [
                 if (_goal && amount != null && amount >= Decimal.fromInt(1000))
                   ..._goalCards(context, amount)
-                else if (!_goal)
-                  for (final (g, rs) in groups) ...[
+                else if (!_goal) ...[
+                  _SchemePicker(
+                    hidden: _hidden,
+                    hiddenCombos: _hiddenCombos,
+                    onChanged: () => setState(() {}),
+                  ),
+                  if (shown.isEmpty && shownCombos.isEmpty)
+                    Note(s.pickAtLeastOne),
+                  if (!fiveShown && shownCombos.isNotEmpty) comboSection(),
+                  for (final (g, rs) in shown) ...[
                     _GroupTitle(s.compareGroup(g)),
                     for (final r in rs)
                       Appear(
@@ -254,24 +286,16 @@ class _CompareScreenState extends State<CompareScreen> {
                               .reduce((a, b) => a > b ? a : b),
                           isBest:
                               g == CompareGroup.fiveYears &&
-                              r == rs.firstWhere((r) => openToAll(r.scheme)),
+                              r ==
+                                  rs
+                                      .where((r) => openToAll(r.scheme))
+                                      .firstOrNull,
                         ),
                       ),
-                    if (g == CompareGroup.fiveYears && combos.isNotEmpty) ...[
-                      _GroupTitle(s.withRdGroup),
-                      for (final p in combos)
-                        Appear(
-                          key: ValueKey(
-                            'combo-${p.base.scheme.code}-${amount ?? ''}',
-                          ),
-                          delay: Appear.step(i++, ms: 60),
-                          child: _ComboCompareCard(
-                            plan: p,
-                            best: combos.first.total,
-                          ),
-                        ),
-                    ],
+                    if (g == CompareGroup.fiveYears && shownCombos.isNotEmpty)
+                      comboSection(),
                   ],
+                ],
                 const SizedBox(height: 8),
                 if (_goal)
                   Note(s.goalNote)
@@ -451,6 +475,115 @@ class _CompareCard extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Schemes shown in Compare, in the order of the groups.
+const kCompareSchemes = [
+  Scheme.td5,
+  Scheme.nsc,
+  Scheme.scss,
+  Scheme.mis,
+  Scheme.rd,
+  Scheme.kvp,
+  Scheme.td3,
+  Scheme.td2,
+  Scheme.td1,
+  Scheme.sb,
+  Scheme.ppf,
+  Scheme.ssy,
+];
+
+/// Lets the user pick which schemes and "+ RD" plans Compare shows.
+class _SchemePicker extends StatelessWidget {
+  const _SchemePicker({
+    required this.hidden,
+    required this.hiddenCombos,
+    required this.onChanged,
+  });
+
+  final Set<Scheme> hidden, hiddenCombos;
+  final VoidCallback onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final s = context.s, t = Theme.of(context).textTheme;
+    final total = kCompareSchemes.length + kComboSchemes.length;
+    final on = total - hidden.length - hiddenCombos.length;
+    Widget chip(String label, Color c, bool selected, VoidCallback toggle) =>
+        FilterChip(
+          label: Text(label),
+          selected: selected,
+          selectedColor: c.withValues(alpha: 0.2),
+          checkmarkColor: c,
+          onSelected: (_) {
+            toggle();
+            onChanged();
+          },
+        );
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      child: ExpansionTile(
+        leading: const Icon(Icons.tune_rounded),
+        title: Text(
+          s.chooseSchemes,
+          style: t.titleSmall?.copyWith(fontWeight: FontWeight.w700),
+        ),
+        subtitle: Text(s.shownOf(on, total)),
+        childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+        expandedCrossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: [
+              for (final sc in kCompareSchemes)
+                Tooltip(
+                  message: s.schemeName(sc),
+                  child: chip(
+                    sc.code,
+                    sc.color,
+                    !hidden.contains(sc),
+                    () => hidden.contains(sc)
+                        ? hidden.remove(sc)
+                        : hidden.add(sc),
+                  ),
+                ),
+              for (final sc in kComboSchemes)
+                chip(
+                  '${sc.code} + RD',
+                  Scheme.rd.color,
+                  !hiddenCombos.contains(sc),
+                  () => hiddenCombos.contains(sc)
+                      ? hiddenCombos.remove(sc)
+                      : hiddenCombos.add(sc),
+                ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Row(
+            children: [
+              TextButton(
+                onPressed: () {
+                  hidden.clear();
+                  hiddenCombos.clear();
+                  onChanged();
+                },
+                child: Text(s.selectAll),
+              ),
+              TextButton(
+                onPressed: () {
+                  hidden.addAll(kCompareSchemes);
+                  hiddenCombos.addAll(kComboSchemes);
+                  onChanged();
+                },
+                child: Text(s.clearAll),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

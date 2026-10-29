@@ -546,6 +546,54 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('compare: choose which schemes to show', (tester) async {
+    await pumpApp(tester);
+    await tester.tap(find.text('Compare').last);
+    await tester.pumpAndSettle();
+    expect(find.text('15 of 15 shown'), findsOneWidget);
+    await tester.tap(find.text('Choose schemes to compare'));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Clear all'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Clear all'));
+    await tester.pumpAndSettle();
+    expect(find.text('0 of 15 shown'), findsOneWidget);
+    expect(find.text('Choose at least one scheme above.'), findsOneWidget);
+    for (final code in ['NSC', 'PPF']) {
+      await tester.ensureVisible(find.widgetWithText(FilterChip, code));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(FilterChip, code));
+      await tester.pumpAndSettle();
+    }
+    await tester.pumpAndSettle();
+    expect(find.text('2 of 15 shown'), findsOneWidget);
+    final list = find.byType(Scrollable).last;
+    await tester.scrollUntilVisible(
+      find.text('Public Provident Fund'),
+      300,
+      scrollable: list,
+    );
+    expect(
+      find.widgetWithText(Card, 'National Savings Certificate'),
+      findsWidgets,
+    );
+    expect(
+      find.descendant(
+        of: find.byType(CompareScreen),
+        matching: find.text('Kisan Vikas Patra', skipOffstage: false),
+      ),
+      findsNothing,
+    );
+    expect(
+      find.descendant(
+        of: find.byType(CompareScreen),
+        matching: find.text('MIS + RD plan', skipOffstage: false),
+      ),
+      findsNothing,
+    );
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('MIS result shows the MIS + RD plan', (tester) async {
     await pumpApp(tester);
     final nav = tester.state<NavigatorState>(find.byType(Navigator).first);
