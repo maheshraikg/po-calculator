@@ -525,6 +525,27 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('compare shows schemes with the interest put into an RD', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    await tester.tap(find.text('Compare').last);
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.text('About 5 years, interest put into an RD'),
+      300,
+      scrollable: find.byType(Scrollable).last,
+    );
+    await tester.scrollUntilVisible(
+      find.text('SCSS + RD plan'),
+      200,
+      scrollable: find.byType(Scrollable).last,
+    );
+    expect(find.text('MIS + RD plan'), findsOneWidget);
+    expect(find.text('TD5 + RD plan'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('MIS result shows the MIS + RD plan', (tester) async {
     await pumpApp(tester);
     final nav = tester.state<NavigatorState>(find.byType(Navigator).first);
@@ -810,7 +831,6 @@ void main() {
       scrollable: list,
     );
     expect(find.textContaining('It is not a government app'), findsWidgets);
-    expect(find.text('www.nsiindia.gov.in', skipOffstage: false), findsWidgets);
     await tester.tap(find.text('Settings').last);
     await tester.pumpAndSettle();
     expect(find.text('Official sources', skipOffstage: false), findsWidgets);

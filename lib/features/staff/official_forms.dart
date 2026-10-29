@@ -32,7 +32,6 @@ const kFormLinks = (
   indemnity: '${kFormsBase}form15_indemnity.pdf',
   // Pages, not files.
   all: 'https://www.indiapost.gov.in/documents/reports/forms',
-  nsi: 'https://www.nsiindia.gov.in/InternalPage.aspx?Id_Pk=38',
   handbooks: 'https://www.indiapost.gov.in/documents/ebooks',
   // Replaces Form 15G/15H from 1 April 2026 (Income-tax Act, 2025).
   form121: 'https://www.incometaxindia.gov.in/w/form-no.-121',
@@ -154,7 +153,6 @@ class OfficialForms extends StatelessWidget {
           ),
           _Heading(s.formsMore),
           link(Icons.folder_open_rounded, s.formsAll, kFormLinks.all),
-          link(Icons.account_balance_rounded, s.formsNsi, kFormLinks.nsi),
           link(Icons.menu_book_rounded, s.formsHandbook, kFormLinks.handbooks),
           Note(s.downloadNote, icon: Icons.download_rounded),
           Note(s.formsNote),

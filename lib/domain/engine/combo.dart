@@ -8,11 +8,13 @@ import 'calculators.dart';
 import 'dates.dart';
 import 'money.dart';
 
-/// MIS or 5-year TD with its interest moved into an RD (by standing
+/// MIS, SCSS or 5-year TD with its interest moved into an RD (by standing
 /// instruction from the savings account).
 ///
 /// MIS: each month's interest pays that month's RD instalment, so the RD
 /// starts a month after the MIS and matures a month after it.
+/// SCSS: each quarter's interest pays the next 3 instalments, so the RD
+/// starts 3 months after the SCSS (after the first interest).
 /// TD 5: each year's interest pays the next 12 instalments, so the RD starts
 /// a year after the TD (after the first interest) and matures a year after
 /// it. Instalments are the interest rounded down to ₹10; the few rupees
@@ -54,7 +56,7 @@ class ComboPlan {
       (math.pow((total / deposit).toDouble(), 12 / months) - 1) * 100;
 }
 
-/// The combo for an MIS or TD 5 result, or null for other schemes or when
+/// The combo for an MIS, SCSS or TD 5 result, or null for other schemes or when
 /// the interest is below the smallest RD instalment.
 ComboPlan? comboFor(CalcResult r, Decimal rdRate) {
   final payout = r.periodicPayout;
@@ -66,6 +68,10 @@ ComboPlan? comboFor(CalcResult r, Decimal rdRate) {
     case Scheme.mis:
       perMonth = payout;
       startMonths = 1;
+      rdInstalments = r.scheme.tenureMonths;
+    case Scheme.scss:
+      perMonth = div(payout, Decimal.fromInt(3));
+      startMonths = 3;
       rdInstalments = r.scheme.tenureMonths;
     case Scheme.td5:
       perMonth = div(payout, Decimal.fromInt(12));
@@ -87,4 +93,28 @@ ComboPlan? comboFor(CalcResult r, Decimal rdRate) {
   );
   final leftover = rupees((perMonth - inst) * Decimal.fromInt(rdInstalments));
   return ComboPlan(base: r, instalment: inst, rd: rd, leftover: leftover);
+}
+
+/// Schemes whose interest can go into an RD, in the Compare screen.
+const kComboSchemes = [Scheme.mis, Scheme.scss, Scheme.td5];
+
+/// MIS + RD, SCSS + RD and TD 5 + RD for the same [amount], highest total
+/// first. A scheme is left out if [amount] is outside its limits.
+List<ComboPlan> compareCombos(
+  Decimal amount,
+  DateTime opening,
+  Decimal Function(Scheme) rateOf,
+) {
+  final plans = <ComboPlan>[];
+  for (final s in kComboSchemes) {
+    if (amount < s.min) continue;
+    final max = s == Scheme.mis ? Scheme.misJointMax : s.maxAmount;
+    if (max != null && amount > Decimal.fromInt(max)) continue;
+    final r = calculate(
+      CalcInput(scheme: s, amount: amount, opening: opening, rate: rateOf(s)),
+    );
+    final plan = comboFor(r, rateOf(Scheme.rd));
+    if (plan != null) plans.add(plan);
+  }
+  return plans..sort((a, b) => b.total.compareTo(a.total));
 }

@@ -8,7 +8,6 @@ import 'common.dart';
 /// in the app (Google Play's Misleading Claims policy asks for them).
 const kOfficialSources = (
   indiaPost: 'https://www.indiapost.gov.in/banking-services/savings',
-  nsi: 'https://www.nsiindia.gov.in',
   rates: 'https://dea.gov.in',
   incomeTax: 'https://www.incometaxindia.gov.in',
 );
@@ -45,7 +44,6 @@ class OfficialSourcesCard extends StatelessWidget {
             s.sourceIndiaPost,
             kOfficialSources.indiaPost,
           ),
-          link(Icons.savings_rounded, s.sourceNsi, kOfficialSources.nsi),
           link(Icons.percent_rounded, s.sourceRates, kOfficialSources.rates),
           link(
             Icons.receipt_long_rounded,

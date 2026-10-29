@@ -6,6 +6,7 @@ import '../../app/format.dart';
 import '../../app/scope.dart';
 import '../../app/theme.dart';
 import '../../domain/engine/calculators.dart';
+import '../../domain/engine/combo.dart';
 import '../../domain/engine/eligibility.dart';
 import '../../domain/engine/goal.dart';
 import '../../domain/models/result.dart';
@@ -135,6 +136,13 @@ class _CompareScreenState extends State<CompareScreen> {
             DateUtils.dateOnly(DateTime.now()),
             (sc) => rates.current(sc).rate,
           );
+    final combos = amount == null || amount < Decimal.fromInt(1000)
+        ? <ComboPlan>[]
+        : compareCombos(
+            amount,
+            DateUtils.dateOnly(DateTime.now()),
+            (sc) => rates.current(sc).rate,
+          );
     var i = 0;
     return Scaffold(
       body: ListView(
@@ -249,6 +257,20 @@ class _CompareScreenState extends State<CompareScreen> {
                               r == rs.firstWhere((r) => openToAll(r.scheme)),
                         ),
                       ),
+                    if (g == CompareGroup.fiveYears && combos.isNotEmpty) ...[
+                      _GroupTitle(s.withRdGroup),
+                      for (final p in combos)
+                        Appear(
+                          key: ValueKey(
+                            'combo-${p.base.scheme.code}-${amount ?? ''}',
+                          ),
+                          delay: Appear.step(i++, ms: 60),
+                          child: _ComboCompareCard(
+                            plan: p,
+                            best: combos.first.total,
+                          ),
+                        ),
+                    ],
                   ],
                 const SizedBox(height: 8),
                 if (_goal)
@@ -425,6 +447,99 @@ class _CompareCard extends StatelessWidget {
                       style: t.bodySmall,
                     ),
                 ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// MIS / SCSS / TD 5 with the interest put into an RD.
+class _ComboCompareCard extends StatelessWidget {
+  const _ComboCompareCard({required this.plan, required this.best});
+  final ComboPlan plan;
+  final Decimal best;
+
+  @override
+  Widget build(BuildContext context) {
+    final s = context.s, t = Theme.of(context).textTheme;
+    final sc = plan.base.scheme, c = sc.color;
+    final share = (plan.total / best).toDouble().clamp(0.05, 1.0);
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute<void>(
+            builder: (_) => ResultScreen(result: plan.base),
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  IconBadge(sc.icon, c, size: 40),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          s.comboTitle(sc.code),
+                          style: t.titleSmall?.copyWith(
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        Text(
+                          '${s.effectiveReturn(plan.effectiveRate.toStringAsFixed(2))}'
+                          ' · ${s.months(plan.months)}',
+                          style: t.bodySmall,
+                        ),
+                        if (!openToAll(sc))
+                          Padding(
+                            padding: const EdgeInsets.only(top: 4),
+                            child: Pill(
+                              s.seniorsOnly,
+                              icon: Icons.info_outline_rounded,
+                              background: c.withValues(alpha: 0.12),
+                              foreground: sc.textColor(context),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: LinearProgressIndicator(
+                        value: share,
+                        minHeight: 14,
+                        color: c,
+                        backgroundColor: c.withValues(alpha: 0.1),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  AnimatedRupee(
+                    plan.total,
+                    style: t.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              Text(
+                '${s.amountLabel(AmountKind.monthly)}: ${rupee(plan.instalment)}'
+                ' · ${s.moreBy(rupee(plan.extra))}',
+                style: t.bodySmall,
               ),
             ],
           ),

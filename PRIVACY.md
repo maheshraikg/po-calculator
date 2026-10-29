@@ -30,8 +30,8 @@ It has no internet permission, no login, no ads, no analytics and no tracking.
   35/2020), kept in this app's public GitHub project
   (raw.githubusercontent.com), because India Post's own form links expire.
 - **Official sources and web pages:** these open in your phone's browser on
-  government websites (indiapost.gov.in, nsiindia.gov.in, dea.gov.in,
-  incometaxindia.gov.in, utilities.cept.gov.in). Those sites, and GitHub,
+  government websites (indiapost.gov.in, dea.gov.in and
+  incometaxindia.gov.in). Those sites, and GitHub,
   have their own privacy policies.
 - **Suggestions and bug reports:** these open your own e-mail app with a
   message to the developer. If you send it, the developer receives your
