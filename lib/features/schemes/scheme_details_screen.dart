@@ -96,9 +96,9 @@ class SchemeInfoCard extends StatelessWidget {
             label: Text(s.documentsAndShare),
           ),
           TextButton.icon(
-            onPressed: () => openLink(context, kOfficialSources.indiaPost),
+            onPressed: () => openLink(context, kOfficialSources.postOffice),
             icon: const Icon(Icons.verified_rounded, size: 18),
-            label: Text(s.sourceLine),
+            label: Text(s.sourcePortalLine),
           ),
         ],
       ),

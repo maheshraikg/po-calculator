@@ -40,10 +40,9 @@ PRIVATE AND OFFLINE
 No login, no internet permission, works offline. Your saved accounts stay on your phone.
 
 OFFICIAL SOURCES OF INFORMATION
-Scheme rules, interest rates, tax facts and the savings forms in this app are taken from these official government websites:
-• India Post – Post Office savings schemes: https://www.indiapost.gov.in/banking-services/savings
-• Department of Economic Affairs (interest rates): https://dea.gov.in
-• Income Tax Department (TDS, Form 121): https://www.incometaxindia.gov.in
+Scheme information in this app is taken from the National Portal of India, the official Government of India website:
+• Post Office savings schemes: https://www.india.gov.in/category/science-it-communication/subcategory/post-telecom/details/information-on-post-office-saving-schemes-of-india-post
+• Sukanya Samriddhi Yojana: https://www.india.gov.in/category/benefits-social-development/subcategory/women-children/details/sukanya-samriddhi-yojna
 The same links are inside the app (Home, Settings and every scheme's details).
 
 Results are estimates; confirm at your post office.

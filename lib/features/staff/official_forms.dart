@@ -30,11 +30,6 @@ const kFormLinks = (
   affidavit: '${kFormsBase}form13_affidavit.pdf',
   disclaimer: '${kFormsBase}form14_disclaimer.pdf',
   indemnity: '${kFormsBase}form15_indemnity.pdf',
-  // Pages, not files.
-  all: 'https://www.indiapost.gov.in/documents/reports/forms',
-  handbooks: 'https://www.indiapost.gov.in/documents/ebooks',
-  // Replaces Form 15G/15H from 1 April 2026 (Income-tax Act, 2025).
-  form121: 'https://www.incometaxindia.gov.in/w/form-no.-121',
 );
 
 /// Opens [url] in the browser; if that fails, copies it.
@@ -95,14 +90,6 @@ class OfficialForms extends StatelessWidget {
       ),
       onTap: () => openLink(context, url),
     );
-    // A web page listing many forms.
-    Widget link(IconData icon, String title, String url) => ListTile(
-      contentPadding: EdgeInsets.zero,
-      leading: IconBadge(icon, color, size: 34),
-      title: Text(title),
-      trailing: const Icon(Icons.open_in_new_rounded, size: 20),
-      onTap: () => openLink(context, url),
-    );
     return SectionCard(
       icon: Icons.description_rounded,
       title: s.officialForms,
@@ -136,7 +123,6 @@ class OfficialForms extends StatelessWidget {
           form(Icons.receipt_rounded, s.formChequeBook, kFormLinks.chequeBook),
           form(Icons.input_rounded, s.formPayInSlip, kFormLinks.payInSlip),
           form(Icons.move_up_rounded, s.formTransfer, kFormLinks.transfer),
-          form(Icons.receipt_long_rounded, s.formNo121, kFormLinks.form121),
           Note(s.silentAccountNote, icon: Icons.bedtime_rounded),
           _Heading(s.formsClaim),
           form(Icons.assignment_ind_rounded, s.formClaim, kFormLinks.claim),
@@ -151,9 +137,6 @@ class OfficialForms extends StatelessWidget {
             s.formIndemnity,
             kFormLinks.indemnity,
           ),
-          _Heading(s.formsMore),
-          link(Icons.folder_open_rounded, s.formsAll, kFormLinks.all),
-          link(Icons.menu_book_rounded, s.formsHandbook, kFormLinks.handbooks),
           Note(s.downloadNote, icon: Icons.download_rounded),
           Note(s.formsNote),
         ],

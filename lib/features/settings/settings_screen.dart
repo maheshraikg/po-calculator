@@ -12,7 +12,7 @@ import '../rates/rates_screen.dart';
 import 'feedback_card.dart';
 import '../../widgets/official_sources.dart';
 
-const String kAppVersion = '1.7.7';
+const String kAppVersion = '1.7.8';
 
 /// Direct link to the newest APK.
 const String kDownloadUrl =

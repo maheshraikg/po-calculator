@@ -103,6 +103,8 @@ matches the meaning below.
 - **Name and India Post**: the app is independent and says so in the
   description and in the app. Do not add India Post logos or the word
   "official". If Google asks, explain it is a private calculator that only
-  links to public forms on indiapost.gov.in and nsiindia.gov.in.
+  links to official pages on india.gov.in (National Portal of India).
+  Only link to government pages that open from outside India: Play's
+  reviewers rejected indiapost.gov.in, nsiindia.gov.in and other links.
 - **Ads later**: if you add ads, update the Ads answer, the Data safety form,
   the privacy policy, and the app will need internet permission.

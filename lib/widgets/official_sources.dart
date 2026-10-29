@@ -4,12 +4,13 @@ import '../app/scope.dart';
 import '../features/staff/official_forms.dart';
 import 'common.dart';
 
-/// Official government sources for the scheme rules, rates and tax facts
-/// in the app (Google Play's Misleading Claims policy asks for them).
+/// Official government sources for the scheme facts in the app (Google
+/// Play's Misleading Claims policy asks for them). Pages on the National
+/// Portal of India, which opens from anywhere: Play's reviewers could not
+/// open indiapost.gov.in, nsiindia.gov.in and others from abroad.
 const kOfficialSources = (
-  indiaPost: 'https://www.indiapost.gov.in/banking-services/savings',
-  rates: 'https://dea.gov.in',
-  incomeTax: 'https://www.incometaxindia.gov.in',
+  postOffice: 'https://www.india.gov.in/category/science-it-communication/subcategory/post-telecom/details/information-on-post-office-saving-schemes-of-india-post',
+  ssy: 'https://www.india.gov.in/category/benefits-social-development/subcategory/women-children/details/sukanya-samriddhi-yojna',
 );
 
 /// Disclaimer and tappable links to the official sources.
@@ -41,15 +42,10 @@ class OfficialSourcesCard extends StatelessWidget {
           const SizedBox(height: 4),
           link(
             Icons.local_post_office_rounded,
-            s.sourceIndiaPost,
-            kOfficialSources.indiaPost,
+            s.sourcePostOffice,
+            kOfficialSources.postOffice,
           ),
-          link(Icons.percent_rounded, s.sourceRates, kOfficialSources.rates),
-          link(
-            Icons.receipt_long_rounded,
-            s.sourceIncomeTax,
-            kOfficialSources.incomeTax,
-          ),
+          link(Icons.girl_rounded, s.sourceSsy, kOfficialSources.ssy),
           Note(s.notGovernmentApp, icon: Icons.gpp_maybe_outlined),
         ],
       ),

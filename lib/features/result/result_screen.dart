@@ -14,7 +14,6 @@ import '../../widgets/motion.dart';
 import '../../widgets/schedule_table.dart';
 import '../../widgets/share_card.dart';
 import '../schemes/scheme_details_screen.dart';
-import '../staff/official_forms.dart';
 import 'print_screen.dart';
 import 'suggestions.dart';
 
@@ -716,28 +715,6 @@ class _TdsReminder extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(text, style: t.bodyMedium),
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              FilledButton.icon(
-                style: FilledButton.styleFrom(
-                  backgroundColor: Brand.yellow,
-                  foregroundColor: Brand.ink,
-                ),
-                onPressed: () => openLink(context, kFormLinks.form121),
-                icon: const Icon(Icons.download_rounded),
-                label: Text(s.openForm121),
-              ),
-              OutlinedButton.icon(
-                onPressed: () =>
-                    sendLink(context, s.formNo121, kFormLinks.form121),
-                icon: const Icon(Icons.share_rounded),
-                label: Text(s.sendForm),
-              ),
-            ],
-          ),
         ],
       ),
     );
