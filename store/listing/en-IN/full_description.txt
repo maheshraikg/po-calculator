@@ -19,9 +19,11 @@ WHAT YOU GET
 • Interest for each financial year with an estimated tax at your slab, and a TDS reminder with Form 121 (earlier 15G/15H)
 • Premature closure amount for any date, including the 5-year TD rule and the official KVP table
 • PPF and SCSS extension, PPF and SSY withdrawal limits
-• Compare every scheme for the same amount, grouped by term
+• Compare every scheme for the same amount, grouped by term, and choose the schemes you want to see
 • "I want ₹" goal planner: how much to deposit once, every month or every year to reach your target
-• Smart suggestions: put MIS or SCSS interest into an RD, or see a scheme that pays more
+• MIS + RD, SCSS + RD and TD 5 + RD plans: put the interest into an RD and see the total and effective yearly return
+• PPF and SSY with yearly or monthly deposits
+• Smart suggestions: see a scheme that pays more for the same money
 • Customer printout: a one-page PDF of the result to share or print
 • Interest rates since 2016, so older accounts use the rate on their opening date
 • Save your accounts, see what is maturing this month, get a reminder before maturity, and back them up to a file
